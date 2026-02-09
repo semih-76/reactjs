@@ -75,7 +75,7 @@ const ProductList = () => {
     return (
         <div>
             <div className="product-list">
-                {produits.map((produit) => (
+                {produits?.map((produit) => (
                     <ProductCard key={produit.id_article} produit={produit}/>
                 ))}
             </div>

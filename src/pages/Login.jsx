@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, {useContext, useState} from "react";
+import {AuthContext } from "../context/authContext.jsx";
+import {useNavigate} from "react-router-dom";
 
 const Login = () => {
+    const { login } = useContext(AuthContext);
+    const navigate = useNavigate()
     const [email, setEmail] = useState("");
     const [motDePasse, setMotDePasse] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -32,9 +36,11 @@ const Login = () => {
             const { token, client } = data;
 
             // Appel au login via le contexte
+            login(token, client)
 
             // Puis retour à l'accueil
-        } catch (error) {
+            navigate("/");
+        }   catch (error) {
             console.error("Erreur lors de la connexion: ", error);
             setErrorMsg("Une erreur s'est produite lors de la connexion");
         }

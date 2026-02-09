@@ -4,10 +4,14 @@ import ProductDetails from "./pages/ProductDetails.jsx";
 import Login from "./pages/Login.jsx";
 import Layout from "./layout/Layout.jsx";
 import Home from "./pages/Home.jsx";
+import {AuthProvider} from "./context/authContext.jsx";
 
 
 function App() {
     return (
+        // AuthProvider enveloppe toute l'app pour
+        // partager l'état de l'authentification
+        <AuthProvider>
         <BrowserRouter>
             <Routes>
                 {/* Route parent : Layout contient navbar + outlet + footer */}
@@ -16,10 +20,10 @@ function App() {
                     {/* id est un paramètre dynamique contenu dans l'url */}
                     <Route path="produit/:id" element={<ProductDetails />} />
                     <Route path="login" element={<Login />} />
-
                 </Route>
             </Routes>
         </BrowserRouter>
+        </AuthProvider>
     )
 }
 
