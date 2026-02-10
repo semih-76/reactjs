@@ -5,6 +5,7 @@ import Login from "./pages/Login.jsx";
 import Layout from "./layout/Layout.jsx";
 import Home from "./pages/Home.jsx";
 import {AuthProvider} from "./context/authContext.jsx";
+import './styles/style.css';
 
 
 function App() {
