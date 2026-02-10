@@ -9,9 +9,13 @@
 
 body {
     background-color: #F5F1EB;
-    font-family: 'Outfit', sans-serif;
+
 }
 
+.nav-logo img {
+
+    display: block;
+}
 
 .navbar {
     display: flex;
@@ -21,20 +25,11 @@ body {
     font-family: 'Outfit', sans-serif;
 }
 
-.nav-logo {
-
-}
-
-.nav-logo img {
-
-}
-
-
 .nav-group-links {
     display: flex;
     gap: 40px;
     flex: 1;
-    justify-content: center;
+    justify-content: left;
 }
 
 .nav-group-links a {
@@ -128,4 +123,114 @@ body {
 
 .hero p {
     font-size: 18px;
+}
+
+.products h1 {
+    font-family: "Times New Roman";
+    font-size: 45px;
+}
+
+.products p {
+    font-family: Outfit;
+    font-size: 16px;
+}
+
+.products {
+    padding-top: 20px;
+    justify-content: center;
+    text-align: center;
+}
+
+
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+
+@media (max-width: 900px) {
+    .product-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .product-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.product-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    transition: transform 0.2s ease;
+}
+
+
+.product-image-container {
+    background-color: #F5F5F5;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.product-card-images {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+
+.product-info {
+    padding: 20px;
+}
+
+.product-category {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    color: #8C8C8C;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.product-name {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: #1A1A1A;
+    margin: 8px 0;
+}
+
+
+.product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.product-price {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #1A1A1A;
+}
+
+.product-view-link {
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #C5A059;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
 }
