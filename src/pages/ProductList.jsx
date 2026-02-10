@@ -22,7 +22,7 @@ const ProductList = () => {
                 }
 
                 const data = await response.json();
-                setProduits(data.article);
+                setProduits(data.articles);
             } catch (err) {
                 console.error("Erreur lors du chargement des produits :", err);
                 setError("Impossible de charger les produits");
@@ -82,5 +82,6 @@ const ProductList = () => {
         </div>
     );
 };
+
 
 export default ProductList;
