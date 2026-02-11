@@ -13,7 +13,6 @@ body {
 }
 
 .nav-logo img {
-
     display: block;
 }
 
@@ -122,12 +121,14 @@ body {
 }
 
 .hero p {
+    font-family: Outfit;
     font-size: 18px;
 }
 
-.products h1 {
+.products h2 {
     font-family: "Times New Roman";
-    font-size: 45px;
+    font-size: 35px;
+    font-weight: 400;
 }
 
 .products p {
@@ -165,43 +166,45 @@ body {
 }
 
 
+
 .product-card {
-    background: #FFFFFF;
-    border-radius: 12px;
+
+    margin-left: 45px;
+    background: #ffffff;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     width: 100%;
-    transition: transform 0.2s ease;
-}
+    max-width: 300px;
 
+}
 
 .product-image-container {
     background-color: #F5F5F5;
-    height: 280px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
 }
 
 .product-card-images {
-    max-height: 100%;
     max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
 }
 
-
 .product-info {
     padding: 20px;
+    text-align: left;
 }
 
 .product-category {
+
     font-family: 'Outfit', sans-serif;
     font-size: 0.75rem;
     color: #8C8C8C;
     letter-spacing: 1px;
     text-transform: uppercase;
+
 }
 
 .product-name {
@@ -221,6 +224,7 @@ body {
 }
 
 .product-price {
+    margin-top: 10px;
     font-family: 'Outfit', sans-serif;
     font-weight: 600;
     font-size: 1.2rem;
@@ -233,4 +237,513 @@ body {
     color: #C5A059;
     font-family: 'Outfit', sans-serif;
     font-size: 0.95rem;
+}
+
+/* Bouton Voir tous les produits */
+.all-products {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.btn-outline {
+    font-family: Outfit;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 2rem;
+    border: 2px solid #2c2c2c;
+    background: transparent;
+    color: #2c2c2c;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-outline:hover {
+    background: #D9C09B;
+    border-color: #D9C09B;
+    color: white;
+}
+
+
+
+
+
+/* Section Nos Engagements */
+.engagements {
+    padding: 5rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.engagements h2 {
+    font-size: 2rem;
+    font-weight: 400;
+    color: #2c2c2c;
+    margin-bottom: 0.5rem;
+    font-family: 'Times New Roman', serif; /* Ou votre font titre */
+}
+
+.engagements .subtitle {
+    font-family: Outfit;
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 3rem;
+}
+
+/* Container des cartes */
+.engagement-cards {
+    font-family: Outfit;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+/* Chaque carte */
+.engagement-cards .card {
+    background: white;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.engagement-cards .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Icône circulaire */
+.engagement-cards .card .icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+/* Couleurs des icônes selon Figma */
+.engagement-cards .card:nth-child(1) .icon {
+    background: #4CAF50; /* Vert pour Bio */
+}
+
+.engagement-cards .card:nth-child(2) .icon {
+    background: #4A90A4; /* Bleu turquoise pour Recyclable */
+}
+
+.engagement-cards .card:nth-child(3) .icon {
+    background: #D4AF37; /* Or pour Premium */
+}
+
+.engagement-cards .card:hover .icon {
+    transform: scale(1.1);
+}
+
+/* Titre de la carte */
+.engagement-cards .card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c2c2c;
+    margin-bottom: 0.8rem;
+    line-height: 1.3;
+}
+
+/* Texte descriptif */
+.engagement-cards .card p {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .engagement-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .engagements {
+        padding: 3rem 1.5rem;
+    }
+
+    .engagement-cards {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .engagements h2 {
+        font-size: 1.8rem;
+    }
+}
+
+.joincafthe {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2.5rem;
+
+}
+
+
+.footer {
+    justify-content: center;
+    text-align: center;
+    background-color: #000000;
+    color: #ffffff;
+    padding: 60px 20px 20px 20px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+}
+
+.footer-brand {
+    flex: 1;
+    min-width: 250px;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
+.brand-description {
+
+    font-size: 0.9rem;
+    color: #ffffff;
+    line-height: 1.5;
+}
+
+.brand-date {
+    margin-top: 15px;
+    font-size: 0.8rem;
+    color: #888888;
+}
+
+.footer-links {
+    flex: 2;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5rem;
+}
+
+.footer-column h4 {
+    font-weight: 400 ;
+    color: #ffffff;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    color: #aaaaaa;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.footer-column ul li a:hover {
+    color: #D9C09B;
+}
+
+.footer-bottom {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #333333;
+    text-align: center;
+    color: #666666;
+    font-size: 0.8rem;
+}
+
+/* Responsivité pour mobile */
+@media (max-width: 768px) {
+    .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Fond de page crème */
+.login-wrapper {
+    font-family: Outfit;
+    background-color: #f9f7f2;
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+}
+
+/* Le bloc blanc central */
+.login-container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 500px;
+    padding: 60px 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.login-title {
+    font-family: 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: 2rem;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 35px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-group label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #1a1a1a;
+    text-transform: capitalize;
+}
+
+.input-group input {
+    padding: 14px 15px;
+    border: 1px solid #e0e0e0;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+    border-color: #1a1a1a;
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.error-message-box {
+    color: #d93025;
+    font-size: 0.85rem;
+    background-color: #fce8e6;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.form-options {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #444;
+}
+
+.forgot-password {
+    color: #1a1a1a;
+    text-decoration: underline;
+}
+
+/* Bouton Se Connecter Noir */
+.submit-button {
+    margin-top: 10px;
+    font-family: Outfit;
+    background-color: #1a1a1a;
+    color: white;
+    padding: 16px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+
+    transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+    background-color: #D9C09B;
+}
+
+.auth-wrapper {
+    background-color: #f9f7f2; /* Fond crème identique aux images */
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.auth-container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 600px; /* Un peu plus large pour les deux colonnes */
+    padding: 50px 60px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+.auth-title {
+    font-family: serif;
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+    color: #1a1a1a;
+}
+
+.auth-subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Alignement Prénom / Nom */
+.input-row {
+    display: flex;
+    gap: 20px;
+}
+
+.input-row .input-group {
+    flex: 1;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.input-group input {
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    background-color: #fcfcfc;
+    font-size: 1rem;
+    outline: none;
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+}
+
+.toggle-btn {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.terms-group {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.checkbox-label a {
+    color: #1a1a1a;
+    text-decoration: underline;
+}
+
+.auth-submit {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 18px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+.auth-submit:hover {
+    background-color: #333;
 }

@@ -1,6 +1,7 @@
 import React, {useContext, useState} from "react";
-import {AuthContext } from "../context/authContext.jsx";
-import {useNavigate} from "react-router-dom";
+import { AuthContext } from "../context/authContext.jsx";
+import { useNavigate } from "react-router-dom";
+import { Eye } from 'lucide-react';
 
 const Login = () => {
     const { login } = useContext(AuthContext);
@@ -8,6 +9,8 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [motDePasse, setMotDePasse] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -46,42 +49,64 @@ const Login = () => {
     };
 
     return (
-        <div className="login-container">
-            <h2>Connexion</h2>
+        <main className="login-wrapper">
+            <div className="login-container">
+                <h1 className="login-title">Déjà client ?</h1>
+                <p className="login-subtitle">Connectez-vous à votre compte</p>
 
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="email">Email :</label>
-                    <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        required
-                        placeholder="votre@email.fr"
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
+                <form className="login-form" onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <label htmlFor="email">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            value={email}
+                            required
+                            placeholder="votre@email.com"
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </div>
 
-                <div className="form-group">
-                    <label htmlFor="password">Mot de passe :</label>
-                    <input
-                        id="password"
-                        type="password"
-                        value={motDePasse}
-                        required
-                        placeholder="Votre mot de passe"
-                        onChange={(e) => setMotDePasse(e.target.value)}
-                    />
-                </div>
+                    <div className="input-group">
+                        <label htmlFor="password">Mot de passe</label>
+                        <div className="password-wrapper">
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"} // Utilise le state showPassword
+                                value={motDePasse}
+                                required
+                                placeholder="********"
+                                onChange={(e) => setMotDePasse(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                className="toggle-password"
+                                style={{ fontSize: '0.75rem', fontWeight: 'bold' }} // Petit style rapide
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? "CACHER" : "VOIR"}
+                            </button>
+                        </div>
+                    </div>
 
-                {/* Affichage conditionnel du message d'erreur */}
-                {errorMsg && <div className="error-message">{errorMsg}</div>}
+                    {/* Affichage du message d'erreur s'il existe */}
+                    {errorMsg && <div className="error-message-box">{errorMsg}</div>}
 
-                <button type="submit" className="login-button">
-                    Se Connecter
-                </button>
-            </form>
-        </div>
+                    <div className="form-options">
+                        <label className="checkbox-container">
+                            <input type="checkbox" />
+                            <span className="checkmark"></span>
+                            Se souvenir de moi
+                        </label>
+                        <a href="#" className="forgot-password">Mot de passe oublié ?</a>
+                    </div>
+
+                    <button type="submit" className="submit-button">
+                        Se connecter
+                    </button>
+                </form>
+            </div>
+        </main>
     );
 };
 

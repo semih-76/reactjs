@@ -20,7 +20,7 @@ const ProductCard = ({ produit }) => {
 
             {/* Zone de texte sous l'image */}
             <div className="product-info">
-                <span className="product-category">CAFÉ</span> {/* Tu peux rendre ça dynamique plus tard */}
+                <span className="product-category">CAFÉ</span>
 
                 <h3 className="product-name">{produit.nom_produit}</h3>
 

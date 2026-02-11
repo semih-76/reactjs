@@ -21,6 +21,7 @@ function App() {
                     {/* id est un paramètre dynamique contenu dans l'url */}
                     <Route path="produit/:id" element={<ProductDetails />} />
                     <Route path="login" element={<Login />} />
+
                 </Route>
             </Routes>
         </BrowserRouter>

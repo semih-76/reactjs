@@ -22,10 +22,10 @@ const ProductList = () => {
                 }
 
                 const data = await response.json();
-                setProduits(data.articles);
+                setProduits(data.articles || []);
             } catch (err) {
                 console.error("Erreur lors du chargement des produits :", err);
-                setError("Impossible de charger les produits");
+                setError( err.message);
             } finally {
                 setIsLoading(false);
             }
@@ -76,7 +76,7 @@ const ProductList = () => {
         <div>
             <div className="product-list">
                 {produits?.slice(0, 3).map((produit) => (
-                    <ProductCard key={produit.id_article} produit={produit}/>
+                    <ProductCard key={produit.ID_article} produit={produit}/>
                 ))}
             </div>
         </div>
