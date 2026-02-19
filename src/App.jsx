@@ -12,6 +12,12 @@ import Register from "./pages/Register.jsx";
 import ProductList from "./pages/ProductList.jsx";
 import Panier from "./pages/Panier.jsx";
 import EspaceClient from "./pages/EspaceClient.jsx";
+import NotreHistoire from './pages/NotreHistoire';
+import MentionsLegales from "./pages/MentionsLegales";
+import CGV from "./pages/CGV";
+import Contact from "./pages/Contact";
+import Faq from "./pages/FAQ";
+import FAQ from "./pages/FAQ";
 
 
 function App() {
@@ -29,6 +35,11 @@ function App() {
                             <Route path="produits" element={<ProductList />} />
                             <Route path="panier" element={<Panier />} />
                             <Route path="espace-client" element={<EspaceClient />} />
+                            <Route path="about" element={<NotreHistoire />} />
+                            <Route path="mentions-legales" element={<MentionsLegales />} />
+                            <Route path="cgv" element={<CGV />} />
+                            <Route path="contact" element={<Contact />} />
+                            <Route path="faq" element={<FAQ />} />
                         </Route>
                     </Routes>
                 </BrowserRouter>

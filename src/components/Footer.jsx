@@ -40,7 +40,7 @@ const Footer = () => {
                     <div className="footer-column">
                         <h4>Informations</h4>
                         <ul>
-                            <li><a href="/about">À propos</a></li>
+                            <li><a href="/about">Notre Histoire</a></li>
                             <li><a href="/cgv">CGV</a></li>
                             <li><a href="/mentions-legales">Mentions légales</a></li>
                         </ul>

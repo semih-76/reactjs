@@ -23,7 +23,7 @@ const Home = () => {
                 <ProductList limit={3} />
 
                 <div className="all-products">
-                    <Link to="/catalogue" className="btn-outline">
+                    <Link to="/produits" className="btn-outline">
                         Voir tous les produits  →
                     </Link>
                 </div>
@@ -51,7 +51,7 @@ const Home = () => {
                             </svg>
                         </div>
                         <h3>Emballages Recyclables</h3>
-                        <p>Packaging écoresponsable pour préserver notre planète</p>
+                        <p>Packaging éco-responsable pour préserver notre planète</p>
                     </div>
 
                     <div className="card">
@@ -65,11 +65,7 @@ const Home = () => {
                     </div>
                 </div>
             </section>
-            <section className="join-community">
-                <div className="joincafthe">
-                    <img src="/images/joincafthe.png"></img>
-                </div>
-            </section>
+
         </div>
     );
 };

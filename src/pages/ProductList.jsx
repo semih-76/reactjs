@@ -3,7 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import Skeleton from "react-loading-skeleton";
 import { useCart } from '../context/CartContext';
 
-
+// Fonction utilitaire : supprime les accents et met en minuscule
+const normalize = (str) =>
+    str?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
 
 const ProductList = ({ limit }) => {
     const { addToCart } = useCart();
@@ -16,6 +18,11 @@ const ProductList = ({ limit }) => {
     const [selectedCategory, setSelectedCategory] = useState(category);
     const [selectedPrice, setSelectedPrice] = useState('all');
     const [sortBy, setSortBy] = useState('');
+
+    // ✅ Synchronise le filtre quand l'URL change (clic navbar)
+    useEffect(() => {
+        setSelectedCategory(category);
+    }, [category]);
 
     useEffect(() => {
         const fetchProduits = async () => {
@@ -48,16 +55,20 @@ const ProductList = ({ limit }) => {
     const getFilteredProducts = () => {
         let filtered = [...produits];
 
-        // ✅ Si limit est défini (mode Home), on retourne directement les 3 premiers
+        // Mode Home : on retourne directement les N premiers
         if (limit) {
             return filtered.slice(0, limit);
         }
 
-        // Sinon, on applique les filtres normaux (mode Catalogue)
+        // ✅ Filtre catégorie insensible aux accents et au "s" final
         if (selectedCategory !== 'all') {
-            filtered = filtered.filter(p =>
-                p.categorie?.toLowerCase() === selectedCategory.toLowerCase()
-            );
+            filtered = filtered.filter(p => {
+                const cat = normalize(p.categorie);
+                const selected = normalize(selectedCategory);
+
+                // Gère : "café" = "cafes", "thé" = "thes", "accessoire" = "accessoires"
+                return cat.startsWith(selected.replace(/s$/, ''));
+            });
         }
 
         if (selectedPrice === 'less20') {
@@ -90,7 +101,7 @@ const ProductList = ({ limit }) => {
         return 'Tous les produits';
     };
 
-    // ✅ Mode simplifié pour la Home (sans sidebar)
+    // Mode simplifié pour la Home (sans sidebar)
     if (limit) {
         if (isLoading) {
             return (
@@ -120,23 +131,58 @@ const ProductList = ({ limit }) => {
                         ? `${import.meta.env.VITE_API_URL}/images/${product.images}`
                         : 'https://placehold.co/400x400?text=Produit';
 
+                    const hasDiscount = product.prix_barre && parseFloat(product.prix_barre) > parseFloat(product.prix_ttc);
+                    const discountPercent = hasDiscount
+                        ? Math.round(((parseFloat(product.prix_barre) - parseFloat(product.prix_ttc)) / parseFloat(product.prix_barre)) * 100)
+                        : 0;
+
                     return (
                         <Link
                             key={product.id_articles}
                             to={`/produit/${product.id_articles}`}
-                            className="home-product-card"
+                            className="catalog-product-card"
                         >
-                            <div className="home-product-image">
+                            {hasDiscount && (
+                                <span className="discount-badge">-{discountPercent}%</span>
+                            )}
+
+                            <div className="catalog-product-image">
                                 <img src={imageUrl} alt={product.nom_produit} />
                             </div>
-                            <div className="home-product-info">
-                                <span className="home-product-category">
-                                    {product.categorie?.toUpperCase() || 'PRODUIT'}
-                                </span>
-                                <h3 className="home-product-name">{product.nom_produit}</h3>
-                                <span className="home-product-price">
-                                    {parseFloat(product.prix_ttc).toFixed(2)} €
-                                </span>
+
+                            <div className="catalog-product-info">
+    <span className="catalog-product-category">
+        {product.categorie?.toUpperCase() || 'PRODUIT'}
+    </span>
+                                <h3 className="catalog-product-name">{product.nom_produit}</h3>
+
+                                {/* ✅ Prix et bouton sur la même ligne */}
+                                <div className="catalog-product-footer">
+                                    <div className="catalog-product-prices">
+                                        {hasDiscount && (
+                                            <span className="price-original">{parseFloat(product.prix_barre).toFixed(2)} €</span>
+                                        )}
+                                        <span className={`price-current ${hasDiscount ? 'price-discounted' : ''}`}>
+                {parseFloat(product.prix_ttc).toFixed(2)} €
+            </span>
+                                    </div>
+
+                                    <button
+                                        className="add-to-cart-btn"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            addToCart({
+                                                id: product.id_articles,
+                                                nom: product.nom_produit,
+                                                prixUnitaire: parseFloat(product.prix_ttc),
+                                                categorie: product.categorie,
+                                                images: product.images
+                                            });
+                                        }}
+                                    >
+                                        Ajouter
+                                    </button>
+                                </div>
                             </div>
                         </Link>
                     );
@@ -145,7 +191,7 @@ const ProductList = ({ limit }) => {
         );
     }
 
-    // ✅ Mode complet pour le Catalogue (avec sidebar et filtres)
+    // Mode complet pour le Catalogue (avec sidebar et filtres)
     if (isLoading) {
         return (
             <main className="catalog-wrapper">
@@ -342,6 +388,7 @@ const ProductList = ({ limit }) => {
                                                 </span>
                                                 <h3 className="catalog-product-name">{product.nom_produit}</h3>
 
+                                                <div className="catalog-product-footer">
                                                 <div className="catalog-product-prices">
                                                     {hasDiscount && (
                                                         <span className="price-original">{parseFloat(product.prix_barre).toFixed(2)} €</span>
@@ -354,7 +401,7 @@ const ProductList = ({ limit }) => {
                                                 <button
                                                     className="add-to-cart-btn"
                                                     onClick={(e) => {
-                                                        e.preventDefault(); // IMPORTANT : empêche de naviguer vers la page produit
+                                                        e.preventDefault();
                                                         addToCart({
                                                             id: product.id_articles,
                                                             nom: product.nom_produit,
@@ -364,9 +411,10 @@ const ProductList = ({ limit }) => {
                                                         });
                                                     }}
                                                 >
-                                                    Ajouter au panier
-                                                </button>
+                                                    Ajouter
 
+                                                </button>
+                                                </div>
                                             </div>
                                         </Link>
                                     );
