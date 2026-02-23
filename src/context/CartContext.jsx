@@ -24,16 +24,25 @@ export const CartProvider = ({ children }) => {
 
     const addToCart = (product) => {
         setItems(prevItems => {
-            const isExist = prevItems.find(item => item.id === product.id);
-            if (isExist) {
+            const existingItem = prevItems.find(item => item.id === product.id);
+
+            if (existingItem) {
+                // Si le produit existe déjà → on augmente la quantité
                 return prevItems.map(item =>
-                    item.id === product.id ? { ...item, quantite: item.quantite + 1 } : item
+                    item.id === product.id
+                        ? { ...item, quantite: item.quantite + 1 }
+                        : item
                 );
             }
+
+            // Sinon on crée une nouvelle ligne
             return [...prevItems, { ...product, quantite: 1 }];
         });
+
         showToast(product);
     };
+
+
 
     const removeItem = (id) => {
         setItems(prevItems => prevItems.filter(item => item.id !== id));
@@ -42,7 +51,9 @@ export const CartProvider = ({ children }) => {
     const updateQuantity = (id, delta) => {
         setItems(prevItems =>
             prevItems.map(item =>
-                item.id === id ? { ...item, quantite: Math.max(1, item.quantite + delta) } : item
+                item.id === id
+                    ? { ...item, quantite: Math.max(1, item.quantite + delta) }
+                    : item
             )
         );
     };

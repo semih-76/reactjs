@@ -286,7 +286,7 @@ const ProductDetails = () => {
                 {relatedProducts.length > 0 && (
                     <section className="related-products">
                         <h2>Dans la même collection</h2>
-                        <div className="related-products-grid">
+                        <div className="products-grid">
                             {relatedProducts.map((item) => {
                                 const relatedImage = item.images
                                     ? `${import.meta.env.VITE_API_URL}/images/${item.images}`
@@ -295,19 +295,38 @@ const ProductDetails = () => {
                                     <Link
                                         key={item.ID_Article}
                                         to={`/produit/${item.ID_Article}`}
-                                        className="related-product-card"
+                                        className="catalog-product-card"
                                     >
-                                        <div className="related-product-image">
+                                        <div className="catalog-product-image">
                                             <img src={relatedImage} alt={item.nom_produit} />
                                         </div>
-                                        <div className="related-product-info">
-                                            <span className="related-category">
-                                                {item.categorie?.toUpperCase()}
-                                            </span>
-                                            <h3>{item.nom_produit}</h3>
-                                            <span className="related-price">
-                                                {parseFloat(item.prix_ttc).toFixed(2)} €
-                                            </span>
+                                        <div className="catalog-product-info">
+                            <span className="catalog-product-category">
+                                {item.categorie?.toUpperCase() || 'PRODUIT'}
+                            </span>
+                                            <h3 className="catalog-product-name">{item.nom_produit}</h3>
+                                            <div className="catalog-product-footer">
+                                                <div className="catalog-product-prices">
+                                    <span className="price-current">
+                                        {parseFloat(item.prix_ttc).toFixed(2)} €
+                                    </span>
+                                                </div>
+                                                <button
+                                                    className="add-to-cart-btn"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        addToCart({
+                                                            id: item.ID_Article,
+                                                            nom: item.nom_produit,
+                                                            prixUnitaire: parseFloat(item.prix_ttc),
+                                                            categorie: item.categorie,
+                                                            images: item.images
+                                                        });
+                                                    }}
+                                                >
+                                                    Ajouter
+                                                </button>
+                                            </div>
                                         </div>
                                     </Link>
                                 );

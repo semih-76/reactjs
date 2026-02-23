@@ -17,7 +17,7 @@ const NotreHistoire = () => {
             </section>
 
 
-            <section className="histoire-image-section">
+            <section className="histoire-image-section"histoire-image-section>
                 <div className="histoire-image-container">
                     <img
                         src="/images/andreeew-hoang-8xRpVcOjP9E-unsplash.jpg"

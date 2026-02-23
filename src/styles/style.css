@@ -640,6 +640,7 @@ body {
 }
 
 .auth-wrapper {
+
     background-color: #f9f7f2; /* Fond crème identique aux images */
     min-height: 80vh;
     display: flex;
@@ -757,12 +758,57 @@ body {
 
 /* Container de fond (Beige très clair) */
 .auth-wrapper {
+
     background-color: #F8F5F1;
     min-height: 90vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 40px 20px;
+}
+
+/* Le conteneur qui unit l'image et le formulaire */
+.login-split-layout {
+    display: flex;
+    align-items: stretch; /* Force l'image et le texte à la même hauteur */
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    max-width: 900px; /* Ajuste la largeur totale souhaitée */
+    width: 100%;
+    overflow: hidden; /* Pour que l'image ne dépasse pas des arrondis si tu en as */
+}
+
+/* La partie Image */
+.img-login {
+    flex: 1;
+    display: block;
+}
+
+.img-login img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+.auth-container {
+    flex: 1;
+    padding: 60px;
+    max-width: none;
+    box-shadow: none;
+}
+
+/* Responsive : On repasse l'un sous l'autre sur mobile */
+@media (max-width: 768px) {
+    .login-split-layout {
+        flex-direction: column;
+        width: 90%;
+    }
+
+    .img-login {
+        height: 250px; /* Hauteur fixe pour l'image en haut sur mobile */
+    }
 }
 
 /* Carte blanche centrale */
@@ -774,7 +820,7 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
 }
 
-/* Titre "Nouveau client ?" (Police Serif) */
+/* Titre "Nouveau client ?" */
 .auth-title {
     font-family: "Times New Roman";
     font-size: 2.2rem;
@@ -3504,14 +3550,18 @@ body {
     margin: 0;
 }
 
+
 /* ── CTA ── */
 .histoire-cta {
+    width: 90%;
+    margin: 0 auto;
     position: relative;
     background-image: url('/images/joincafthe.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     padding: 0;
+
 }
 
 /* Dégradé : transparent en haut → noir en bas */
@@ -3530,6 +3580,10 @@ body {
 }
 
 .histoire-cta-overlay {
+    margin-top: 0.5rem;
+    margin-bottom: 6rem;
+    display: flex;
+    align-items: center;
     position: relative;
     z-index: 2;
     padding: 120px 20px 100px;
@@ -3743,6 +3797,7 @@ body {
 ======================================== */
 
 .toast-container {
+
     position: fixed;
     bottom: 30px;
     right: 30px;
@@ -3754,6 +3809,7 @@ body {
 }
 
 .toast {
+    font-family: Outfit;
     display: flex;
     align-items: center;
     gap: 14px;
@@ -4015,6 +4071,12 @@ body {
 }
 
 /* ── NAVIGATION ANCRES ── */
+
+/* Masque la barre de défilement pour le menu des ancres */
+.legal-anchors::-webkit-scrollbar {
+    display: none; /* Pour Chrome, Safari et Opera */
+}
+
 .legal-anchors {
     background-color: #FDFBF7;
     border-bottom: 1px solid #E8E2D9;
@@ -4022,11 +4084,13 @@ body {
     top: 0;
     z-index: 50;
     overflow-x: auto;
+    -ms-overflow-style: none;  /* Pour Internet Explorer et Edge */
+    scrollbar-width: none;     /* Pour Firefox */
 }
 
 .legal-anchors-inner {
-    max-width: 1000px;
-    margin: 0 auto;
+    /*max-width: 1000px;
+    /*margin: 0 auto;*/
     padding: 0 20px;
     display: flex;
     gap: 0;
@@ -4088,7 +4152,7 @@ body {
 .legal-number {
     font-family: 'Times New Roman', serif;
     font-size: 2.5rem;
-    color: #E8E2D9;
+    color: #a89782;
     font-weight: 400;
     line-height: 1;
     display: block;
@@ -4163,7 +4227,7 @@ body {
 
 /* ── CROSSLINK (lien vers l'autre doc) ── */
 .legal-crosslink {
-    max-width: 820px;
+    width: 80%;
     margin: 60px auto 0;
     background-image: url('/images/joincafthe.png');
     background-size: cover;
@@ -5717,4 +5781,101 @@ body {
 
 .product-title {
     font-family: Outfit;
+}
+
+.sitemap-wrapper {
+    padding: 80px 20px;
+    background-color: #fcfaf8; /* Fond crème léger */
+    min-height: 80vh;
+}
+
+.sitemap-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.sitemap-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.sitemap-header h1 {
+    font-size: 2.5rem;
+    color: #000000; /* Marron très foncé */
+    margin-bottom: 10px;
+}
+
+.sitemap-header p {
+    color: #6d6d6d;
+    font-size: 1.1rem;
+    font-family: Outfit;
+}
+
+.sitemap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 40px;
+}
+
+.sitemap-column {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.sitemap-column:hover {
+    transform: translateY(-5px);
+}
+
+.sitemap-icon {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.sitemap-column h3 {
+    font-family: "Times New Roman";
+    color: #000000;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e8e1da;
+    padding-bottom: 10px;
+}
+
+.sitemap-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sitemap-column ul li {
+    margin-bottom: 12px;
+}
+
+.sitemap-column ul li a {
+    font-family: Outfit;
+    text-decoration: none;
+    color: #4a4a4a;
+    font-size: 1rem;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+    display: inline-block;
+}
+
+.sitemap-column ul li a:hover {
+    color: #C9A876;
+    padding-left: 5px;
+}
+
+/* Responsive pour mobiles */
+@media (max-width: 768px) {
+    .sitemap-wrapper {
+        padding: 40px 15px;
+    }
+    .sitemap-header h1 {
+        font-size: 2rem;
+    }
+    .sitemap-grid {
+        gap: 20px;
+    }
 }

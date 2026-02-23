@@ -45,6 +45,10 @@ const Login = () => {
 
     return (
         <main className="auth-wrapper">
+            <div className="login-split-layout">
+            <div className="img-login">
+                <img src="/images/img-login.jpg"></img>
+            </div>
             <div className="auth-container">
                 <h1 className="auth-title">Déjà client ?</h1>
                 <p className="auth-subtitle">Connectez-vous à votre compte</p>
@@ -98,6 +102,7 @@ const Login = () => {
                 <p className="register-link">
                     Pas encore de compte ? <Link to="/register">Créer un compte</Link>
                 </p>
+            </div>
             </div>
         </main>
     );

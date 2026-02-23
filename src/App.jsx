@@ -16,6 +16,7 @@ import MentionsLegales from "./pages/MentionsLegales";
 import CGV from "./pages/CGV";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
+import PlanduSite from "./pages/PlanduSite.jsx";
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
                             <Route path="cgv" element={<CGV />} />
                             <Route path="contact" element={<Contact />} />
                             <Route path="faq" element={<FAQ />} />
+                            <Route path="plan" element={<PlanduSite />} />
                         </Route>
                     </Routes>
                 </BrowserRouter>
