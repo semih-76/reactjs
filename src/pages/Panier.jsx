@@ -3,10 +3,10 @@ import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
 
 const Panier = () => {
-    // 1. Recuperation des fonctions et des donnees depuis le Context
+    // Recuperation des fonctions et des donnees depuis le Context
     const { items, updateQuantity, removeItem } = useCart();
 
-    // 2. Calcul du sous-total
+    // Calcul du sous-total
     const subtotal = items.reduce((acc, item) => acc + (item.prixUnitaire * item.quantite), 0);
 
     return (
@@ -15,7 +15,7 @@ const Panier = () => {
                 <h1 className="panier-title">Mon Panier</h1>
 
                 <div className="panier-content">
-                    {/* 3. Affichage conditionnel si le panier est vide */}
+
                     {items.length === 0 ? (
                         <div className="items-list">
                             <p style={{ padding: '20px', fontSize: '1.2rem' }}>
@@ -42,7 +42,7 @@ const Panier = () => {
                                     <div className="item-details">
                                         <div className="item-header">
                                             <span className="item-category">{item.categorie}</span>
-                                            {/* 4. Branchement de la suppression */}
+
                                             <button
                                                 className="delete-btn"
                                                 onClick={() => removeItem(item.id)}
@@ -55,13 +55,13 @@ const Panier = () => {
 
                                         <div className="item-footer">
                                             <div className="quantity-selector">
-                                                {/* 5. Branchement des quantites */}
+
                                                 <button onClick={() => updateQuantity(item.id, -1)}>−</button>
                                                 <span>{item.quantite}</span>
                                                 <button onClick={() => updateQuantity(item.id, 1)}>+</button>
                                             </div>
                                             <div className="item-price-block">
-                                                <span className="unit-price">{item.prixUnitaire.toFixed(2)} € / unite</span>
+                                                <span className="unit-price">{item.prixUnitaire.toFixed(2)} € / Unité</span>
                                                 <span className="total-price">{(item.prixUnitaire * item.quantite).toFixed(2)} €</span>
                                             </div>
                                         </div>
@@ -71,7 +71,7 @@ const Panier = () => {
                         </section>
                     )}
 
-                    {/* Sidebar Recapitulatif */}
+
                     {items.length > 0 && (
                         <aside className="summary-sidebar">
                             <div className="summary-card">

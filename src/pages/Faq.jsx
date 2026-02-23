@@ -117,7 +117,7 @@ const FAQ = () => {
     return (
         <div className="faq-wrapper">
 
-            {/* ── HERO ── */}
+
             <section className="faq-hero">
                 <div className="faq-hero-inner">
                     <p className="faq-eyebrow">Centre d'aide</p>
@@ -131,7 +131,7 @@ const FAQ = () => {
             <main className="faq-main">
                 <div className="faq-container">
 
-                    {/* ── TABS CATÉGORIES ── */}
+
                     <nav className="faq-tabs">
                         {categories.map(cat => (
                             <button
@@ -144,7 +144,7 @@ const FAQ = () => {
                         ))}
                     </nav>
 
-                    {/* ── ACCORDÉON ── */}
+
                     <div className="faq-list">
                         {currentFaqs.map((item, i) => (
                             <div
@@ -166,7 +166,7 @@ const FAQ = () => {
                         ))}
                     </div>
 
-                    {/* ── CROSSLINK CONTACT ── */}
+
                     <div className="faq-crosslink">
                         <div className="faq-crosslink-left">
                             <span className="faq-crosslink-eyebrow">Vous n'avez pas trouvé votre réponse ?</span>

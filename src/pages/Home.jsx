@@ -19,7 +19,7 @@ const Home = () => {
                 <h2> Nos produits phares</h2>
                 <p className="subtitle">Nos sélections coup de cœur pour découvrir l'excellence</p>
 
-                {/* On passe une prop "limit" si tu veux gérer le slice dans ProductList */}
+
                 <ProductList limit={3} />
 
                 <div className="all-products">

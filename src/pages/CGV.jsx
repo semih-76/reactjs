@@ -68,7 +68,7 @@ const CGV = () => {
     return (
         <div className="legal-wrapper">
 
-            {/* ── HERO ── */}
+
             <section className="legal-hero cgv-hero">
                 <div className="legal-hero-inner">
                     <p className="legal-eyebrow">Documents officiels</p>
@@ -80,7 +80,7 @@ const CGV = () => {
                 </div>
             </section>
 
-            {/* ── NAVIGATION ANCRES ── */}
+
             <nav className="legal-anchors">
                 <div className="legal-anchors-inner">
                     {sections.map(s => (
@@ -91,7 +91,7 @@ const CGV = () => {
                 </div>
             </nav>
 
-            {/* ── SECTIONS ── */}
+
             <main className="legal-main">
                 <div className="legal-container">
                     {sections.map((section) => (
@@ -107,7 +107,7 @@ const CGV = () => {
                     ))}
                 </div>
 
-                {/* ── LIEN VERS MENTIONS LÉGALES ── */}
+
                 <div className="legal-crosslink">
                     <div className="legal-crosslink-content">
                         <span className="legal-crosslink-eyebrow">Document associé</span>

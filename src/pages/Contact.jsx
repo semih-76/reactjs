@@ -44,7 +44,7 @@ const Contact = () => {
     return (
         <div className="contact-wrapper">
 
-            {/* ── HERO ── */}
+
             <section className="contact-hero">
                 <div className="contact-hero-inner">
                     <p className="contact-eyebrow">Nous contacter</p>
@@ -58,10 +58,10 @@ const Contact = () => {
             <main className="contact-main">
                 <div className="contact-container">
 
-                    {/* ── INFOS + FORMULAIRE ── */}
+
                     <div className="contact-grid">
 
-                        {/* Infos */}
+
                         <aside className="contact-info-col">
                             <h2 className="contact-col-title">Nos coordonnées</h2>
                             <div className="contact-info-cards">
@@ -87,7 +87,7 @@ const Contact = () => {
                             </div>
                         </aside>
 
-                        {/* Formulaire */}
+
                         <div className="contact-form-col">
                             <h2 className="contact-col-title">Envoyer un message</h2>
                             {sent ? (
@@ -161,7 +161,7 @@ const Contact = () => {
                         </div>
                     </div>
 
-                    {/* ── LIEN FAQ ── */}
+
                     <div className="contact-crosslink">
                         <div className="contact-crosslink-left">
                             <span className="contact-crosslink-eyebrow">Besoin d'une réponse rapide ?</span>

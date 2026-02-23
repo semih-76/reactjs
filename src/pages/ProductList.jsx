@@ -3,9 +3,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import Skeleton from "react-loading-skeleton";
 import { useCart } from '../context/CartContext';
 
-// Fonction utilitaire : supprime les accents et met en minuscule
 const normalize = (str) =>
     str?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
+
+const PRODUCTS_PER_PAGE = 9;
 
 const ProductList = ({ limit }) => {
     const { addToCart } = useCart();
@@ -18,26 +19,25 @@ const ProductList = ({ limit }) => {
     const [selectedCategory, setSelectedCategory] = useState(category);
     const [selectedPrice, setSelectedPrice] = useState('all');
     const [sortBy, setSortBy] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
-    // ✅ Synchronise le filtre quand l'URL change (clic navbar)
     useEffect(() => {
         setSelectedCategory(category);
+        setCurrentPage(1); // reset page quand catégorie URL change
     }, [category]);
+
+    // Reset page quand les filtres changent
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedCategory, selectedPrice, sortBy]);
 
     useEffect(() => {
         const fetchProduits = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
-
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/articles`,
-                );
-
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP ${response.status}`);
-                }
-
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
+                if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
                 const data = await response.json();
                 setProduits(data.articles || []);
             } catch (err) {
@@ -47,26 +47,18 @@ const ProductList = ({ limit }) => {
                 setIsLoading(false);
             }
         };
-
         void fetchProduits();
     }, []);
 
-    // Fonction de filtrage
     const getFilteredProducts = () => {
         let filtered = [...produits];
 
-        // Mode Home : on retourne directement les N premiers
-        if (limit) {
-            return filtered.slice(0, limit);
-        }
+        if (limit) return filtered.slice(0, limit);
 
-        // ✅ Filtre catégorie insensible aux accents et au "s" final
         if (selectedCategory !== 'all') {
             filtered = filtered.filter(p => {
                 const cat = normalize(p.categorie);
                 const selected = normalize(selectedCategory);
-
-                // Gère : "café" = "cafes", "thé" = "thes", "accessoire" = "accessoires"
                 return cat.startsWith(selected.replace(/s$/, ''));
             });
         }
@@ -79,20 +71,27 @@ const ProductList = ({ limit }) => {
             filtered = filtered.filter(p => parseFloat(p.prix_ttc) > 40);
         }
 
-        if (sortBy === 'price-asc') {
-            filtered.sort((a, b) => parseFloat(a.prix_ttc) - parseFloat(b.prix_ttc));
-        } else if (sortBy === 'price-desc') {
-            filtered.sort((a, b) => parseFloat(b.prix_ttc) - parseFloat(a.prix_ttc));
-        } else if (sortBy === 'name-asc') {
-            filtered.sort((a, b) => a.nom_produit.localeCompare(b.nom_produit));
-        } else if (sortBy === 'name-desc') {
-            filtered.sort((a, b) => b.nom_produit.localeCompare(a.nom_produit));
-        }
+        if (sortBy === 'price-asc') filtered.sort((a, b) => parseFloat(a.prix_ttc) - parseFloat(b.prix_ttc));
+        else if (sortBy === 'price-desc') filtered.sort((a, b) => parseFloat(b.prix_ttc) - parseFloat(a.prix_ttc));
+        else if (sortBy === 'name-asc') filtered.sort((a, b) => a.nom_produit.localeCompare(b.nom_produit));
+        else if (sortBy === 'name-desc') filtered.sort((a, b) => b.nom_produit.localeCompare(a.nom_produit));
 
         return filtered;
     };
 
     const filteredProducts = getFilteredProducts();
+
+    // Pagination
+    const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+    const paginatedProducts = filteredProducts.slice(
+        (currentPage - 1) * PRODUCTS_PER_PAGE,
+        currentPage * PRODUCTS_PER_PAGE
+    );
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const getPageTitle = () => {
         if (selectedCategory === 'cafes') return 'Cafés';
@@ -101,7 +100,127 @@ const ProductList = ({ limit }) => {
         return 'Tous les produits';
     };
 
-    // Mode simplifié pour la Home (sans sidebar)
+    // Génère les numéros de pages à afficher (avec ellipses)
+    const getPageNumbers = () => {
+        const pages = [];
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            if (currentPage <= 3) {
+                pages.push(1, 2, 3, 4, '...', totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+            } else {
+                pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+            }
+        }
+        return pages;
+    };
+
+    // Composant carte produit réutilisable
+    const ProductCard = ({ product }) => {
+        const imageUrl = product.images
+            ? `${import.meta.env.VITE_API_URL}/images/${product.images}`
+            : 'https://placehold.co/400x400?text=Produit';
+
+        const hasDiscount = product.prix_barre && parseFloat(product.prix_barre) > parseFloat(product.prix_ttc);
+        const discountPercent = hasDiscount
+            ? Math.round(((parseFloat(product.prix_barre) - parseFloat(product.prix_ttc)) / parseFloat(product.prix_barre)) * 100)
+            : 0;
+
+        return (
+            <Link to={`/produit/${product.ID_Article}`} className="catalog-product-card">
+                {hasDiscount && <span className="discount-badge">-{discountPercent}%</span>}
+                <div className="catalog-product-image">
+                    <img src={imageUrl} alt={product.nom_produit} />
+                </div>
+                <div className="catalog-product-info">
+                    <span className="catalog-product-category">
+                        {product.categorie?.toUpperCase() || 'PRODUIT'}
+                    </span>
+                    <h3 className="catalog-product-name">{product.nom_produit}</h3>
+                    <div className="catalog-product-footer">
+                        <div className="catalog-product-prices">
+                            {hasDiscount && (
+                                <span className="price-original">{parseFloat(product.prix_barre).toFixed(2)} €</span>
+                            )}
+                            <span className={`price-current ${hasDiscount ? 'price-discounted' : ''}`}>
+                                {parseFloat(product.prix_ttc).toFixed(2)} €
+                            </span>
+                        </div>
+                        <button
+                            className="add-to-cart-btn"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                addToCart({
+                                    id: product.id_articles,
+                                    nom: product.nom_produit,
+                                    prixUnitaire: parseFloat(product.prix_ttc),
+                                    categorie: product.categorie,
+                                    images: product.images
+                                });
+                            }}
+                        >
+                            Ajouter
+                        </button>
+                    </div>
+                </div>
+            </Link>
+        );
+    };
+
+    // Composant Pagination
+    const Pagination = () => {
+        if (totalPages <= 1) return null;
+
+        return (
+            <div className="pagination-wrapper">
+                <div className="pagination-info">
+                    Page {currentPage} sur {totalPages} — {filteredProducts.length} produits
+                </div>
+                <div className="pagination-controls">
+                    {/* Précédent */}
+                    <button
+                        className={`pagination-btn pagination-btn--prev ${currentPage === 1 ? 'disabled' : ''}`}
+                        onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        aria-label="Page précédente"
+                    >
+                        ←
+                    </button>
+
+                    {/* Numéros */}
+                    {getPageNumbers().map((page, index) =>
+                        page === '...' ? (
+                            <span key={`ellipsis-${index}`} className="pagination-ellipsis">···</span>
+                        ) : (
+                            <button
+                                key={page}
+                                className={`pagination-btn pagination-btn--number ${currentPage === page ? 'active' : ''}`}
+                                onClick={() => handlePageChange(page)}
+                                aria-label={`Page ${page}`}
+                                aria-current={currentPage === page ? 'page' : undefined}
+                            >
+                                {page}
+                            </button>
+                        )
+                    )}
+
+                    {/* Suivant */}
+                    <button
+                        className={`pagination-btn pagination-btn--next ${currentPage === totalPages ? 'disabled' : ''}`}
+                        onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        aria-label="Page suivante"
+                    >
+                        →
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
+    // ── MODE HOME ──
     if (limit) {
         if (isLoading) {
             return (
@@ -119,79 +238,16 @@ const ProductList = ({ limit }) => {
                 </div>
             );
         }
-
-        if (error) {
-            return <div className="no-products">Erreur de chargement</div>;
-        }
+        if (error) return <div className="no-products">Erreur de chargement</div>;
 
         return (
             <div className="products-grid-home">
-                {filteredProducts.map((product) => {
-                    const imageUrl = product.images
-                        ? `${import.meta.env.VITE_API_URL}/images/${product.images}`
-                        : 'https://placehold.co/400x400?text=Produit';
-
-                    const hasDiscount = product.prix_barre && parseFloat(product.prix_barre) > parseFloat(product.prix_ttc);
-                    const discountPercent = hasDiscount
-                        ? Math.round(((parseFloat(product.prix_barre) - parseFloat(product.prix_ttc)) / parseFloat(product.prix_barre)) * 100)
-                        : 0;
-
-                    return (
-                        <Link
-                            key={product.id_articles}
-                            to={`/produit/${product.id_articles}`}
-                            className="catalog-product-card"
-                        >
-                            {hasDiscount && (
-                                <span className="discount-badge">-{discountPercent}%</span>
-                            )}
-
-                            <div className="catalog-product-image">
-                                <img src={imageUrl} alt={product.nom_produit} />
-                            </div>
-
-                            <div className="catalog-product-info">
-    <span className="catalog-product-category">
-        {product.categorie?.toUpperCase() || 'PRODUIT'}
-    </span>
-                                <h3 className="catalog-product-name">{product.nom_produit}</h3>
-
-                                {/* ✅ Prix et bouton sur la même ligne */}
-                                <div className="catalog-product-footer">
-                                    <div className="catalog-product-prices">
-                                        {hasDiscount && (
-                                            <span className="price-original">{parseFloat(product.prix_barre).toFixed(2)} €</span>
-                                        )}
-                                        <span className={`price-current ${hasDiscount ? 'price-discounted' : ''}`}>
-                {parseFloat(product.prix_ttc).toFixed(2)} €
-            </span>
-                                    </div>
-
-                                    <button
-                                        className="add-to-cart-btn"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            addToCart({
-                                                id: product.id_articles,
-                                                nom: product.nom_produit,
-                                                prixUnitaire: parseFloat(product.prix_ttc),
-                                                categorie: product.categorie,
-                                                images: product.images
-                                            });
-                                        }}
-                                    >
-                                        Ajouter
-                                    </button>
-                                </div>
-                            </div>
-                        </Link>
-                    );
-                })}
+                {filteredProducts.map((product) => <ProductCard key={product.id_articles} product={product} />)}
             </div>
         );
     }
 
-    // Mode complet pour le Catalogue (avec sidebar et filtres)
+    // ── MODE CATALOGUE LOADING ──
     if (isLoading) {
         return (
             <main className="catalog-wrapper">
@@ -201,9 +257,7 @@ const ProductList = ({ limit }) => {
                         <Skeleton width={100} height={20} style={{ marginTop: '10px' }} />
                     </div>
                     <div className="catalog-layout">
-                        <aside className="catalog-sidebar">
-                            <Skeleton height={300} />
-                        </aside>
+                        <aside className="catalog-sidebar"><Skeleton height={300} /></aside>
                         <div className="products-grid">
                             {Array.from({ length: 6 }).map((_, i) => (
                                 <div key={i} className="catalog-product-card">
@@ -222,6 +276,7 @@ const ProductList = ({ limit }) => {
         );
     }
 
+    // ── MODE CATALOGUE ERREUR ──
     if (error) {
         return (
             <main className="catalog-wrapper">
@@ -230,10 +285,7 @@ const ProductList = ({ limit }) => {
                         <div className="error-container">
                             <h3>Une erreur est survenue</h3>
                             <p>{error}</p>
-                            <button
-                                onClick={() => window.location.reload()}
-                                className="retry-button"
-                            >
+                            <button onClick={() => window.location.reload()} className="retry-button">
                                 Réessayer
                             </button>
                         </div>
@@ -243,6 +295,7 @@ const ProductList = ({ limit }) => {
         );
     }
 
+    // ── MODE CATALOGUE COMPLET ──
     return (
         <main className="catalog-wrapper">
             <div className="catalog-container">
@@ -252,88 +305,49 @@ const ProductList = ({ limit }) => {
                 </div>
 
                 <div className="catalog-layout">
+                    {/* ── SIDEBAR ── */}
                     <aside className="catalog-sidebar">
                         <div className="filter-section">
                             <h3 className="filter-title">Catégorie</h3>
                             <div className="filter-options">
-                                <label className="filter-option">
-                                    <input
-                                        type="radio"
-                                        name="category"
-                                        checked={selectedCategory === 'all'}
-                                        onChange={() => setSelectedCategory('all')}
-                                    />
-                                    <span>Tous les produits</span>
-                                </label>
-                                <label className="filter-option">
-                                    <input
-                                        type="radio"
-                                        name="category"
-                                        checked={selectedCategory === 'thes'}
-                                        onChange={() => setSelectedCategory('thes')}
-                                    />
-                                    <span>Thés</span>
-                                </label>
-                                <label className="filter-option">
-                                    <input
-                                        type="radio"
-                                        name="category"
-                                        checked={selectedCategory === 'cafes'}
-                                        onChange={() => setSelectedCategory('cafes')}
-                                    />
-                                    <span>Cafés</span>
-                                </label>
-                                <label className="filter-option">
-                                    <input
-                                        type="radio"
-                                        name="category"
-                                        checked={selectedCategory === 'accessoires'}
-                                        onChange={() => setSelectedCategory('accessoires')}
-                                    />
-                                    <span>Accessoires</span>
-                                </label>
+                                {[
+                                    { value: 'all', label: 'Tous les produits' },
+                                    { value: 'thes', label: 'Thés' },
+                                    { value: 'cafes', label: 'Cafés' },
+                                    { value: 'accessoires', label: 'Accessoires' },
+                                ].map(({ value, label }) => (
+                                    <label className="filter-option" key={value}>
+                                        <input
+                                            type="radio"
+                                            name="category"
+                                            checked={selectedCategory === value}
+                                            onChange={() => setSelectedCategory(value)}
+                                        />
+                                        <span>{label}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
                         <div className="filter-section">
                             <h3 className="filter-title">Prix</h3>
                             <div className="filter-options">
-                                <label className="filter-option">
-                                    <input
-                                        type="radio"
-                                        name="price"
-                                        checked={selectedPrice === 'all'}
-                                        onChange={() => setSelectedPrice('all')}
-                                    />
-                                    <span>Tous les prix</span>
-                                </label>
-                                <label className="filter-option">
-                                    <input
-                                        type="radio"
-                                        name="price"
-                                        checked={selectedPrice === 'less20'}
-                                        onChange={() => setSelectedPrice('less20')}
-                                    />
-                                    <span>Moins de 20€</span>
-                                </label>
-                                <label className="filter-option">
-                                    <input
-                                        type="radio"
-                                        name="price"
-                                        checked={selectedPrice === '20-40'}
-                                        onChange={() => setSelectedPrice('20-40')}
-                                    />
-                                    <span>20€ - 40€</span>
-                                </label>
-                                <label className="filter-option">
-                                    <input
-                                        type="radio"
-                                        name="price"
-                                        checked={selectedPrice === 'more40'}
-                                        onChange={() => setSelectedPrice('more40')}
-                                    />
-                                    <span>Plus de 40€</span>
-                                </label>
+                                {[
+                                    { value: 'all', label: 'Tous les prix' },
+                                    { value: 'less20', label: 'Moins de 20€' },
+                                    { value: '20-40', label: '20€ - 40€' },
+                                    { value: 'more40', label: 'Plus de 40€' },
+                                ].map(({ value, label }) => (
+                                    <label className="filter-option" key={value}>
+                                        <input
+                                            type="radio"
+                                            name="price"
+                                            checked={selectedPrice === value}
+                                            onChange={() => setSelectedPrice(value)}
+                                        />
+                                        <span>{label}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
@@ -353,73 +367,19 @@ const ProductList = ({ limit }) => {
                         </div>
                     </aside>
 
+                    {/* ── PRODUITS + PAGINATION ── */}
                     <section className="catalog-products">
                         {filteredProducts.length === 0 ? (
                             <div className="no-products">Aucun produit trouvé</div>
                         ) : (
-                            <div className="products-grid">
-                                {filteredProducts.map((product) => {
-                                    const imageUrl = product.images
-                                        ? `${import.meta.env.VITE_API_URL}/images/${product.images}`
-                                        : 'https://placehold.co/400x400?text=Produit';
-
-                                    const hasDiscount = product.prix_barre && parseFloat(product.prix_barre) > parseFloat(product.prix_ttc);
-                                    const discountPercent = hasDiscount
-                                        ? Math.round(((parseFloat(product.prix_barre) - parseFloat(product.prix_ttc)) / parseFloat(product.prix_barre)) * 100)
-                                        : 0;
-
-                                    return (
-                                        <Link
-                                            key={product.id_articles}
-                                            to={`/produit/${product.id_articles}`}
-                                            className="catalog-product-card"
-                                        >
-                                            {hasDiscount && (
-                                                <span className="discount-badge">-{discountPercent}%</span>
-                                            )}
-
-                                            <div className="catalog-product-image">
-                                                <img src={imageUrl} alt={product.nom_produit} />
-                                            </div>
-
-                                            <div className="catalog-product-info">
-                                                <span className="catalog-product-category">
-                                                    {product.categorie?.toUpperCase() || 'PRODUIT'}
-                                                </span>
-                                                <h3 className="catalog-product-name">{product.nom_produit}</h3>
-
-                                                <div className="catalog-product-footer">
-                                                <div className="catalog-product-prices">
-                                                    {hasDiscount && (
-                                                        <span className="price-original">{parseFloat(product.prix_barre).toFixed(2)} €</span>
-                                                    )}
-                                                    <span className={`price-current ${hasDiscount ? 'price-discounted' : ''}`}>
-                                                        {parseFloat(product.prix_ttc).toFixed(2)} €
-                                                    </span>
-                                                </div>
-
-                                                <button
-                                                    className="add-to-cart-btn"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        addToCart({
-                                                            id: product.id_articles,
-                                                            nom: product.nom_produit,
-                                                            prixUnitaire: parseFloat(product.prix_ttc),
-                                                            categorie: product.categorie,
-                                                            images: product.images
-                                                        });
-                                                    }}
-                                                >
-                                                    Ajouter
-
-                                                </button>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
+                            <>
+                                <div className="products-grid">
+                                    {paginatedProducts.map((product) => (
+                                        <ProductCard key={product.id_articles} product={product} />
+                                    ))}
+                                </div>
+                                <Pagination />
+                            </>
                         )}
                     </section>
                 </div>

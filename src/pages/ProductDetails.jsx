@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
+import { useCart } from "../context/CartContext";
+
+// Grammages disponibles et leurs multiplicateurs par rapport au prix de base (100g)
+const WEIGHTS = [
+    { label: '100g', multiplier: 1 },
+    { label: '250g', multiplier: 2.5 },
+    { label: '500g', multiplier: 5 },
+    { label: '1kg',  multiplier: 10 },
+];
 
 const ProductDetails = () => {
     const { id } = useParams();
+    const { addToCart } = useCart();
 
     const [produit, setProduit] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedWeight, setSelectedWeight] = useState('50g');
     const [quantity, setQuantity] = useState(1);
-    const [selectedImage, setSelectedImage] = useState(0);
+    const [added, setAdded] = useState(false);
+    const [relatedProducts, setRelatedProducts] = useState([]);
+    const [selectedWeight, setSelectedWeight] = useState(WEIGHTS[0]); // 100g par défaut
 
     useEffect(() => {
         const fetchProduit = async () => {
@@ -18,16 +29,28 @@ const ProductDetails = () => {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/articles/${id}`,
-                );
-
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP ${response.status}`);
-                }
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/articles/${id}`);
+                if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
 
                 const data = await response.json();
-                setProduit(data.article);
+
+                // ✅ CORRECTION 1 : Utiliser "article" au singulier comme dans ton JSON
+                const produitRecu = data.article;
+                setProduit(produitRecu);
+
+                // Fetch des produits liés
+                const allRes = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
+                const allData = await allRes.json();
+
+                // ✅ CORRECTION 2 : Vérifier si c'est allData.articles ou allData tout court
+                const all = allData.articles || allData || [];
+
+                const related = all
+                    .filter(p => p.ID_Article !== produitRecu.ID_Article &&
+                        p.categorie === produitRecu.categorie)
+                    .slice(0, 3);
+                setRelatedProducts(related);
+
             } catch (err) {
                 console.error("Erreur lors du chargement du produit :", err);
                 setError("Impossible de charger le produit");
@@ -35,18 +58,46 @@ const ProductDetails = () => {
                 setIsLoading(false);
             }
         };
+        window.scrollTo(0, 0);
 
         void fetchProduit();
     }, [id]);
 
-    const incrementQuantity = () => setQuantity(quantity + 1);
-    const decrementQuantity = () => quantity > 1 && setQuantity(quantity - 1);
+    const incrementQuantity = () => setQuantity(q => q + 1);
+    const decrementQuantity = () => setQuantity(q => q > 1 ? q - 1 : 1);
 
-    const calculateTotal = () => {
+    // Prix pour le grammage sélectionné (sans la quantité)
+    const priceForWeight = () => {
         if (!produit) return 0;
-        return (produit.prix_ttc * quantity).toFixed(2);
+        return parseFloat(produit.prix_ttc) * selectedWeight.multiplier;
     };
 
+    // Prix total (grammage × quantité)
+    const calculateTotal = () => {
+        return (priceForWeight() * quantity).toFixed(2);
+    };
+
+    const handleAddToCart = () => {
+        addToCart({
+            id: produit.ID_Article,
+            nom: `${produit.nom_produit} — ${selectedWeight.label}`,
+            prixUnitaire: priceForWeight(),
+            categorie: produit.categorie,
+            images: produit.images,
+            quantite: quantity,
+        });
+        setAdded(true);
+        setTimeout(() => setAdded(false), 2000);
+    };
+
+    // Avis clients statiques
+    const reviews = [
+        { id: 1, author: 'Marie D.', rating: 5, date: '15 janvier 2026', comment: 'Excellent produit, arômes complexes et délicats. Je recommande vivement !' },
+        { id: 2, author: 'Pierre L.', rating: 5, date: '8 janvier 2026', comment: 'Un des meilleurs que j\'ai goûtés. Livraison rapide et soignée.' },
+        { id: 3, author: 'Sophie M.', rating: 4, date: '2 janvier 2026', comment: 'Très bon avec des notes subtiles et raffinées.' }
+    ];
+
+    // ── LOADING ──
     if (isLoading) {
         return (
             <div className="product-details-wrapper">
@@ -56,14 +107,12 @@ const ProductDetails = () => {
                             <Skeleton height={500} />
                             <div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}>
                                 <Skeleton width={100} height={100} />
-                                <Skeleton width={100} height={100} />
                             </div>
                         </div>
                         <div className="product-info-section">
                             <Skeleton width="30%" height={20} />
                             <Skeleton width="70%" height={40} style={{ marginTop: '10px' }} />
-                            <Skeleton width="40%" height={20} style={{ marginTop: '10px' }} />
-                            <Skeleton count={3} style={{ marginTop: '20px' }} />
+                            <Skeleton count={4} style={{ marginTop: '15px' }} />
                         </div>
                     </div>
                 </div>
@@ -71,7 +120,8 @@ const ProductDetails = () => {
         );
     }
 
-    if (error) {
+    // ── ERREUR ──
+    if (error || !produit) {
         return (
             <div className="product-details-wrapper">
                 <div className="product-details-container">
@@ -79,8 +129,8 @@ const ProductDetails = () => {
                         <div className="error-container">
                             <h3>Une erreur est survenue</h3>
                             <p>{error}</p>
-                            <Link to="/" className="back-link">
-                                Retour à l'accueil
+                            <Link to="/produits" className="retry-button">
+                                Retour aux produits
                             </Link>
                         </div>
                     </div>
@@ -89,43 +139,34 @@ const ProductDetails = () => {
         );
     }
 
-    // Image provenant de l'API
     const imageUrl = produit.images
         ? `${import.meta.env.VITE_API_URL}/images/${produit.images}`
         : `https://placehold.co/600x600?text=${produit.nom_produit}`;
 
-    // Poids disponibles
-    const weights = ['50g', '100g', '250g', '500g', '1kg'];
-
-    // Produits complémentaires (exemple statique - à remplacer par un appel API)
-    const relatedProducts = [
-        { id: 1, category: 'CAFÉS', name: 'Café Kenya AA', price: '19.90', image: imageUrl },
-        { id: 2, category: 'CAFÉS', name: 'Café Colombie Supremo', price: '16.90', image: imageUrl },
-        { id: 3, category: 'CAFÉS', name: 'Café Brésil Santos', price: '14.90', image: imageUrl }
-    ];
-
-    // Avis clients (exemple statique)
-    const reviews = [
-        { id: 1, author: 'Marie D.', rating: 5, date: '15 janvier 2026', comment: 'Excellent café, arômes complexes et délicats. Je recommande vivement !' },
-        { id: 2, author: 'Pierre L.', rating: 5, date: '8 janvier 2026', comment: 'Un des meilleurs cafés que j\'ai goûtés. Livraison rapide.' },
-        { id: 3, author: 'Sophie M.', rating: 4, date: '2 janvier 2026', comment: 'Très bon café avec des notes fruitées prononcées.' }
-    ];
+    // Sélecteur de grammage uniquement pour Café et Thé
+    const showWeightSelector = produit.categorie !== 'Accessoires';
 
     return (
         <main className="product-details-wrapper">
             <div className="product-details-container">
-                {/* Fil d'Ariane */}
+
+                {/* ── FIL D'ARIANE ── */}
                 <nav className="breadcrumb">
                     <Link to="/">Accueil</Link>
                     <span>/</span>
-                    <Link to="/produits">Cafés</Link>
+                    <Link to="/produits">Produits</Link>
+                    <span>/</span>
+                    <Link to={`/produits?category=${produit.categorie?.toLowerCase()}s`}>
+                        {produit.categorie}
+                    </Link>
                     <span>/</span>
                     <span>{produit.nom_produit}</span>
                 </nav>
 
-                {/* Section principale du produit */}
+                {/* ── SECTION PRINCIPALE ── */}
                 <section className="product-main">
-                    {/* Galerie d'images */}
+
+                    {/* ── GALERIE ── */}
                     <div className="product-gallery">
                         <div className="gallery-main">
                             <img src={imageUrl} alt={produit.nom_produit} />
@@ -134,55 +175,69 @@ const ProductDetails = () => {
                             <div className="thumbnail active">
                                 <img src={imageUrl} alt={produit.nom_produit} />
                             </div>
-                            <div className="thumbnail">
-                                <img src={imageUrl} alt={produit.nom_produit} />
-                            </div>
                         </div>
                     </div>
 
-                    {/* Informations produit */}
+                    {/* ── INFOS PRODUIT ── */}
                     <div className="product-info-section">
-                        <span className="product-category-label">CAFÉS</span>
+
+                        <span className="product-category-label">
+                            {produit.categorie?.toUpperCase()}
+                        </span>
+
                         <h1 className="product-title">{produit.nom_produit}</h1>
-                        <p className="product-reference">Référence: {produit.reference || 'N/A'}</p>
 
                         <div className="product-rating">
                             <div className="stars">★★★★☆</div>
                             <span className="rating-value">4.8 (24 avis)</span>
                         </div>
 
-                        <p className="product-description">{produit.description || 'Description non disponible'}</p>
+                        {produit.description && (
+                            <p className="product-description">{produit.description}</p>
+                        )}
 
                         <div className="product-details-info">
+                            {produit.origine && (
+                                <div className="info-row">
+                                    <span className="info-label">Origine :</span>
+                                    <span className="info-value">{produit.origine}</span>
+                                </div>
+                            )}
                             <div className="info-row">
-                                <span className="info-label">Origine:</span>
-                                <span className="info-value">Éthiopie, région de Sidamo</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="info-label">Disponibilité:</span>
-                                <span className="info-value availability-stock">
+                                <span className="info-label">Disponibilité :</span>
+                                <span className={`info-value ${produit.stock > 0 ? 'availability-stock' : 'availability-out'}`}>
                                     {produit.stock > 0 ? 'En stock' : 'Rupture de stock'}
                                 </span>
                             </div>
                         </div>
 
-                        {/* Sélecteur de poids */}
-                        <div className="weight-selector">
-                            <label>Quantité (poids)</label>
-                            <div className="weight-options">
-                                {weights.map((weight) => (
-                                    <button
-                                        key={weight}
-                                        className={`weight-btn ${selectedWeight === weight ? 'active' : ''}`}
-                                        onClick={() => setSelectedWeight(weight)}
-                                    >
-                                        {weight}
-                                    </button>
-                                ))}
+                        {/* ── SÉLECTEUR DE GRAMMAGE (Café & Thé uniquement) ── */}
+                        {showWeightSelector && (
+                            <div className="weight-selector">
+                                <label>
+                                    Grammage
+                                    <span className="weight-base-price">
+                                        — prix de base : {parseFloat(produit.prix_ttc).toFixed(2)} € / 100g
+                                    </span>
+                                </label>
+                                <div className="weight-options">
+                                    {WEIGHTS.map((w) => (
+                                        <button
+                                            key={w.label}
+                                            className={`weight-btn ${selectedWeight.label === w.label ? 'active' : ''}`}
+                                            onClick={() => setSelectedWeight(w)}
+                                        >
+                                            <span className="weight-label">{w.label}</span>
+                                            <span className="weight-price">
+                                                {(parseFloat(produit.prix_ttc) * w.multiplier).toFixed(2)} €
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
-                        {/* Sélecteur de quantité */}
+                        {/* ── QUANTITÉ ── */}
                         <div className="quantity-selector-section">
                             <label>Nombre d'unités</label>
                             <div className="quantity-controls">
@@ -192,37 +247,76 @@ const ProductDetails = () => {
                             </div>
                         </div>
 
-                        {/* Prix et ajout au panier */}
+                        {/* ── PRIX + BOUTON ── */}
                         <div className="product-price-section">
                             <div className="price-display">
-                                <span className="price-label">Prix total:</span>
+                                <span className="price-label">
+                                    {showWeightSelector
+                                        ? `Prix (${selectedWeight.label} × ${quantity}) :`
+                                        : `Prix total :`}
+                                </span>
                                 <span className="price-value">{calculateTotal()} €</span>
                             </div>
-                            <button className="btn-add-to-cart">Ajouter au panier</button>
+                            {quantity > 1 && (
+                                <p className="pd-unit-price">
+                                    {priceForWeight().toFixed(2)} € / unité
+                                </p>
+                            )}
+
+                            <button
+                                className={`btn-add-to-cart ${added ? 'btn-added' : ''}`}
+                                onClick={handleAddToCart}
+                                disabled={produit.stock === 0}
+                            >
+                                {added
+                                    ? '✓ Ajouté au panier'
+                                    : produit.stock === 0
+                                        ? 'Rupture de stock'
+                                        : 'Ajouter au panier'}
+                            </button>
+
+                            <Link to="/produits" className="pd-back-link">
+                                ← Continuer mes achats
+                            </Link>
                         </div>
                     </div>
                 </section>
 
-                {/* Produits complémentaires */}
-                <section className="related-products">
-                    <h2>Produits complémentaires</h2>
-                    <div className="related-products-grid">
-                        {relatedProducts.map((item) => (
-                            <div key={item.id} className="related-product-card">
-                                <div className="related-product-image">
-                                    <img src={item.image} alt={item.name} />
-                                </div>
-                                <div className="related-product-info">
-                                    <span className="related-category">{item.category}</span>
-                                    <h3>{item.name}</h3>
-                                    <span className="related-price">{item.price} €</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                {/* ── PRODUITS LIÉS ── */}
+                {relatedProducts.length > 0 && (
+                    <section className="related-products">
+                        <h2>Dans la même collection</h2>
+                        <div className="related-products-grid">
+                            {relatedProducts.map((item) => {
+                                const relatedImage = item.images
+                                    ? `${import.meta.env.VITE_API_URL}/images/${item.images}`
+                                    : 'https://placehold.co/400x400?text=Produit';
+                                return (
+                                    <Link
+                                        key={item.ID_Article}
+                                        to={`/produit/${item.ID_Article}`}
+                                        className="related-product-card"
+                                    >
+                                        <div className="related-product-image">
+                                            <img src={relatedImage} alt={item.nom_produit} />
+                                        </div>
+                                        <div className="related-product-info">
+                                            <span className="related-category">
+                                                {item.categorie?.toUpperCase()}
+                                            </span>
+                                            <h3>{item.nom_produit}</h3>
+                                            <span className="related-price">
+                                                {parseFloat(item.prix_ttc).toFixed(2)} €
+                                            </span>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </section>
+                )}
 
-                {/* Avis clients */}
+                {/* ── AVIS CLIENTS ── */}
                 <section className="customer-reviews">
                     <h2>Avis clients</h2>
                     <div className="reviews-list">
@@ -232,8 +326,7 @@ const ProductDetails = () => {
                                     <div className="review-author">
                                         <strong>{review.author}</strong>
                                         <div className="review-stars">
-                                            {'★'.repeat(review.rating)}
-                                            {'☆'.repeat(5 - review.rating)}
+                                            {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
                                         </div>
                                     </div>
                                     <span className="review-date">{review.date}</span>
@@ -243,6 +336,7 @@ const ProductDetails = () => {
                         ))}
                     </div>
                 </section>
+
             </div>
         </main>
     );

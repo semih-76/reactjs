@@ -5,7 +5,6 @@ import Login from "./pages/Login.jsx";
 import Layout from "./layout/Layout.jsx";
 import Home from "./pages/Home.jsx";
 import { AuthProvider } from "./context/authContext.jsx";
-// --- AJOUT DE L'IMPORT ICI ---
 import { CartProvider } from "./context/CartContext.jsx";
 import './styles/style.css';
 import Register from "./pages/Register.jsx";
@@ -16,14 +15,12 @@ import NotreHistoire from './pages/NotreHistoire';
 import MentionsLegales from "./pages/MentionsLegales";
 import CGV from "./pages/CGV";
 import Contact from "./pages/Contact";
-import Faq from "./pages/FAQ";
 import FAQ from "./pages/FAQ";
 
 
 function App() {
     return (
         <AuthProvider>
-            {/* --- AJOUT DU CARTPROVIDER ICI --- */}
             <CartProvider>
                 <BrowserRouter>
                     <Routes>

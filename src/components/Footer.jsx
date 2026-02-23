@@ -5,7 +5,7 @@ const Footer = () => {
     return (
         <footer className="footer">
             <div className="footer-container">
-                {/* Section Logo et Description */}
+
                 <div className="footer-brand">
                     <div className="nav-logo">
                         <Link to='/'>
@@ -18,7 +18,7 @@ const Footer = () => {
                     </p>
                 </div>
 
-                {/* Colonnes de liens */}
+
                 <div className="footer-links">
                     <div className="footer-column">
                         <h4>Mon Espace</h4>

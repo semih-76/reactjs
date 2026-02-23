@@ -85,7 +85,7 @@ const Login = () => {
 
                     {errorMsg && <div className="error-message-box">{errorMsg}</div>}
 
-                    {/* ✅ Lien mot de passe oublié */}
+
                     <div style={{ textAlign: 'right', marginTop: '5' }}>
                         <Link to="/mot-de-passe-oublie" className='forgot-password'>Mot de passe oublié ?</Link>
                     </div>

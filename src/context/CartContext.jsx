@@ -51,7 +51,7 @@ export const CartProvider = ({ children }) => {
         <CartContext.Provider value={{ items, addToCart, removeItem, updateQuantity }}>
             {children}
 
-            {/* ── TOASTS ── */}
+
             <div className="toast-container">
                 {toasts.map(({ id, product }) => {
                     const imageUrl = product.images

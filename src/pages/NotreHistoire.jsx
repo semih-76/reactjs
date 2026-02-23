@@ -5,7 +5,7 @@ const NotreHistoire = () => {
     return (
         <div className="histoire-wrapper">
 
-            {/* ── HERO ── */}
+
             <section className="histoire-hero">
                 <div className="histoire-hero-content">
                     <p className="histoire-eyebrow">Depuis 2010</p>
@@ -16,12 +16,12 @@ const NotreHistoire = () => {
                 </div>
             </section>
 
-            {/* ── IMAGE PRINCIPALE ── */}
+
             <section className="histoire-image-section">
                 <div className="histoire-image-container">
                     <img
                         src="/images/andreeew-hoang-8xRpVcOjP9E-unsplash.jpg"
-                        alt="L'intérieur chaleureux de notre boutique CafThé"
+                        alt="intérieur boutique CafThé"
                         className="histoire-main-image"
                     />
                     <div className="histoire-image-caption">
@@ -30,7 +30,7 @@ const NotreHistoire = () => {
                 </div>
             </section>
 
-            {/* ── TEXTE INTRO ── */}
+
             <section className="histoire-intro">
                 <div className="histoire-container">
                     <div className="histoire-intro-grid">
@@ -59,7 +59,7 @@ const NotreHistoire = () => {
                 </div>
             </section>
 
-            {/* ── TIMELINE ── */}
+
             <section className="histoire-timeline-section">
                 <div className="histoire-container">
                     <h2 className="histoire-section-title centered">Nos grandes étapes</h2>
@@ -93,7 +93,7 @@ const NotreHistoire = () => {
                         </div>
 
                         <div className="timeline-item">
-                            <div className="timeline-year">2024</div>
+                            <div className="timeline-year">2026</div>
                             <div className="timeline-dot"></div>
                             <div className="timeline-content">
                                 <h3>CafThé en ligne</h3>
@@ -105,7 +105,7 @@ const NotreHistoire = () => {
                 </div>
             </section>
 
-            {/* ── VALEURS ── */}
+
             <section className="histoire-valeurs">
                 <div className="histoire-container">
                     <h2 className="histoire-section-title centered">Ce qui nous anime</h2>
@@ -129,7 +129,7 @@ const NotreHistoire = () => {
                 </div>
             </section>
 
-            {/* ── CTA ── */}
+
             <section className="histoire-cta">
                 <div className="histoire-cta-overlay">
                     <div className="histoire-container histoire-cta-inner">

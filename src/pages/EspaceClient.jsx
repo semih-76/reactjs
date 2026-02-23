@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 
-// --- SOUS-COMPOSANTS DE CONTENU ---
+// SOUS-COMPOSANTS DE CONTENU
 
 const MonCompte = ({ setActiveTab }) => (
     <div className="ec-view-dashboard">
@@ -43,7 +43,7 @@ const MonCompte = ({ setActiveTab }) => (
                     <span className="status-badge delivered">Livrée</span>
                     <span className="order-price">61.90 €</span>
                 </div>
-                {/* Navigation vers l'onglet Mes commandes */}
+
                 <button className="btn-secondary-outline" onClick={() => setActiveTab('mes-commandes')}>
                     Voir mes commandes
                 </button>
@@ -53,7 +53,7 @@ const MonCompte = ({ setActiveTab }) => (
         <div className="quick-access">
             <h3>Accès rapides</h3>
             <div className="access-grid">
-                {/* Accès rapides fonctionnels */}
+
                 <div className="access-card" onClick={() => setActiveTab('mes-commandes')} style={{ cursor: 'pointer' }}>
                     <span className="icon"></span>
                     <h4>Mes commandes</h4>
@@ -61,7 +61,7 @@ const MonCompte = ({ setActiveTab }) => (
                 </div>
                 <div className="access-card" onClick={() => setActiveTab('mes-adresses')} style={{ cursor: 'pointer' }}>
                     <span className="icon"></span>
-                    <h4>Mes adresses</h4>
+                    <h4>Mes adresses de livraisons</h4>
                     <p>Gérez vos adresses</p>
                 </div>
                 <div className="access-card" onClick={() => setActiveTab('mes-informations')} style={{ cursor: 'pointer' }}>
@@ -77,7 +77,7 @@ const MonCompte = ({ setActiveTab }) => (
 const MesCommandes = () => {
     const [activeFilter, setActiveFilter] = useState('Toutes');
 
-    // Données de commandes fictives (à remplacer par des données API)
+    // Données de commandes fictives
     const commandes = [
         { id: 'CMD-2026-00142', date: '15 janvier 2026', statut: 'Livrée', prix: '61.90 €' },
         { id: 'CMD-2026-00098', date: '3 janvier 2026', statut: 'Expédiée', prix: '34.50 €' },
@@ -180,13 +180,13 @@ const MesAdresses = () => {
     return (
         <div className="ec-view-addresses">
             <div className="view-header-flex">
-                <h2>Mes Adresses</h2>
+                <h2>Mes Adresses de livraisons</h2>
                 <button className="btn-add-address" onClick={() => { setShowForm(!showForm); setEditId(null); setFormData({ type: 'Domicile', nom: '', rue: '', cp: '', ville: '', pays: 'France' }); }}>
                     {showForm ? 'Annuler' : '+ Ajouter une adresse'}
                 </button>
             </div>
 
-            {/* Formulaire d'ajout / modification */}
+
             {showForm && (
                 <form onSubmit={handleSubmit} className="address-form" style={{ marginBottom: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px' }}>
                     <h3 style={{ marginBottom: '12px' }}>{editId ? 'Modifier l\'adresse' : 'Nouvelle adresse'}</h3>
@@ -299,7 +299,7 @@ const MesInformations = () => {
                 <p className="subtitle">Gérez vos informations personnelles et votre mot de passe</p>
             </div>
 
-            {/* Informations personnelles */}
+
             <section className="info-section">
                 <h3>Informations personnelles</h3>
                 <form onSubmit={handleSaveInfo}>
@@ -326,7 +326,7 @@ const MesInformations = () => {
                 </form>
             </section>
 
-            {/* Modification du mot de passe — CDC §5.2 : validation via l'ancien */}
+
             <section className="info-section">
                 <h3>Modifier le mot de passe</h3>
                 <form onSubmit={handleSaveMdp}>
@@ -347,7 +347,7 @@ const MesInformations = () => {
                 </form>
             </section>
 
-            {/* Zone dangereuse */}
+
             <section className="info-section danger-zone">
                 <h3>Supprimer votre compte</h3>
                 <p>La suppression de votre compte est définitive et irréversible.</p>
@@ -357,7 +357,7 @@ const MesInformations = () => {
     );
 };
 
-// --- COMPOSANT PRINCIPAL ---
+// COMPOSANT PRINCIPAL
 
 const EspaceClient = () => {
     const [activeTab, setActiveTab] = useState('mon-compte');
@@ -401,7 +401,7 @@ const EspaceClient = () => {
                                 <span className="icon"></span> Mes informations
                             </button>
                             <hr />
-                            {/* Déconnexion fonctionnelle */}
+
                             <button className="logout-btn" onClick={handleDeconnexion}>
                                 <span className="icon"></span> Déconnexion
                             </button>
