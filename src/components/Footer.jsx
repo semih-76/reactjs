@@ -9,7 +9,7 @@ const Footer = () => {
                 <div className="footer-brand">
                     <div className="nav-logo">
                         <Link to='/'>
-                            <img src="/images/Logo.svg" alt="CafThé" />
+                            <img src="/images/Logo.webp" alt="CafThé" />
                         </Link>
                     </div>
                     <p className="brand-description">

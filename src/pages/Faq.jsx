@@ -170,7 +170,7 @@ const FAQ = () => {
                     <div className="faq-crosslink">
                         <div className="faq-crosslink-left">
                             <span className="faq-crosslink-eyebrow">Vous n'avez pas trouvé votre réponse ?</span>
-                            <h3 className="faq-crosslink-title">Contactez notre équipe</h3>
+                            <h2 className="faq-crosslink-title">Contactez notre équipe</h2>
                             <p className="faq-crosslink-text">
                                 Notre équipe est disponible du lundi au vendredi de 9h à 18h pour répondre à toutes vos questions.
                             </p>

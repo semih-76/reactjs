@@ -47,7 +47,7 @@ const Login = () => {
         <main className="auth-wrapper">
             <div className="login-split-layout">
             <div className="img-login">
-                <img src="/images/img-login.jpg"></img>
+                <img src="/images/img-login.webp"></img>
             </div>
             <div className="auth-container">
                 <h1 className="auth-title">Déjà client ?</h1>

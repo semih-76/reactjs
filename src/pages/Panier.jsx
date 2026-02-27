@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
 
 const Panier = () => {
     // Recuperation des fonctions et des donnees depuis le Context
     const { items, updateQuantity, removeItem } = useCart();
+    const navigate = useNavigate();
 
     // Calcul du sous-total
     const subtotal = items.reduce((acc, item) => acc + (item.prixUnitaire * item.quantite), 0);
@@ -93,18 +95,22 @@ const Panier = () => {
                                         <span>Sous-total</span>
                                         <span>{subtotal.toFixed(2)} €</span>
                                     </div>
-                                    <div className="summary-row">
-                                        <span>Frais de livraison</span>
-                                        <span className="free-shipping">Gratuit</span>
-                                    </div>
+
                                 </div>
 
                                 <div className="summary-total">
-                                    <span>Total TTC</span>
+                                    <span>Total</span>
                                     <span>{subtotal.toFixed(2)} €</span>
                                 </div>
 
-                                <button className="btn-checkout">Valider ma commande</button>
+
+
+                                <button
+                                    className="btn-checkout"
+                                    onClick={() => navigate("/checkout/livraison")}
+                                >
+                                    Valider ma commande
+                                </button>
                                 <Link to="/produits" className="btn-continue" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>
                                     Continuer mes achats
                                 </Link>

@@ -23,11 +23,12 @@ export const CartProvider = ({ children }) => {
     }, []);
 
     const addToCart = (product) => {
+        console.log("Produit reçu dans le panier:", product);
         setItems(prevItems => {
             const existingItem = prevItems.find(item => item.id === product.id);
 
             if (existingItem) {
-                // Si le produit existe déjà → on augmente la quantité
+
                 return prevItems.map(item =>
                     item.id === product.id
                         ? { ...item, quantite: item.quantite + 1 }
@@ -35,7 +36,7 @@ export const CartProvider = ({ children }) => {
                 );
             }
 
-            // Sinon on crée une nouvelle ligne
+
             return [...prevItems, { ...product, quantite: 1 }];
         });
 
@@ -57,6 +58,8 @@ export const CartProvider = ({ children }) => {
             )
         );
     };
+
+
 
     return (
         <CartContext.Provider value={{ items, addToCart, removeItem, updateQuantity }}>

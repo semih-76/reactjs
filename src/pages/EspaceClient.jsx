@@ -1,59 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 
 // SOUS-COMPOSANTS DE CONTENU
 
-const MonCompte = ({ setActiveTab }) => (
+const MonCompte = ({ setActiveTab, stats }) => (
     <div className="ec-view-dashboard">
         <div className="welcome-banner">
             <h2>Bienvenue sur votre espace client</h2>
             <p>Gérez votre compte et suivez vos commandes</p>
         </div>
 
-        <div className="stats-grid">
-            <div className="stat-card">
-                <span className="stat-icon"></span>
-                <div>
-                    <span className="stat-label">TOTAL COMMANDES</span>
-                    <span className="stat-value">8</span>
+        {/* Stats — affichées seulement s'il y a des commandes */}
+        {stats.totalCommandes > 0 ? (
+            <div className="stats-grid">
+                <div className="stat-card">
+                    <span className="stat-icon"></span>
+                    <div>
+                        <span className="stat-label">TOTAL COMMANDES</span>
+                        <span className="stat-value">{stats.totalCommandes}</span>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <span className="stat-icon"></span>
+                    <div>
+                        <span className="stat-label">TOTAL DÉPENSÉ</span>
+                        <span className="stat-value">{stats.totalDepense} €</span>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <span className="stat-icon"></span>
+                    <div>
+                        <span className="stat-label">ARTICLES ACHETÉS</span>
+                        <span className="stat-value">{stats.totalArticles}</span>
+                    </div>
                 </div>
             </div>
-            <div className="stat-card">
-                <span className="stat-icon"></span>
-                <div>
-                    <span className="stat-label">TOTAL DÉPENSÉ</span>
-                    <span className="stat-value">248.50 €</span>
-                </div>
+        ) : (
+            <div className="empty-state-dashboard">
+                <p>Vous n'avez pas encore passé de commande.</p>
+                <Link to="/produits" className="btn-dark">Commencer mes achats</Link>
             </div>
-            <div className="stat-card">
-                <span className="stat-icon"></span>
-                <div>
-                    <span className="stat-label">ARTICLES ACHETÉS</span>
-                    <span className="stat-value">23</span>
-                </div>
-            </div>
-        </div>
+        )}
 
-        <div className="last-order-section">
-            <h3>Dernière commande</h3>
-            <div className="last-order-card">
-                <div className="order-info">
-                    <p>Commande du 15 janvier 2026</p>
-                    <span className="status-badge delivered">Livrée</span>
-                    <span className="order-price">61.90 €</span>
+        {/* Dernière commande — affichée seulement si elle existe */}
+        {stats.derniereCommande && (
+            <div className="last-order-section">
+                <h3>Dernière commande</h3>
+                <div className="last-order-card">
+                    <div className="order-info">
+                        <p>Commande du {stats.derniereCommande.date}</p>
+                        <span className={`status-badge ${stats.derniereCommande.statut.toLowerCase().replace(/ /g, '-')}`}>
+                            {stats.derniereCommande.statut}
+                        </span>
+                        <span className="order-price">{stats.derniereCommande.prix.toFixed(2)} €</span>
+                    </div>
+                    <button className="btn-secondary-outline" onClick={() => setActiveTab('mes-commandes')}>
+                        Voir mes commandes
+                    </button>
                 </div>
-
-                <button className="btn-secondary-outline" onClick={() => setActiveTab('mes-commandes')}>
-                    Voir mes commandes
-                </button>
             </div>
-        </div>
+        )}
 
         <div className="quick-access">
             <h3>Accès rapides</h3>
             <div className="access-grid">
-
                 <div className="access-card" onClick={() => setActiveTab('mes-commandes')} style={{ cursor: 'pointer' }}>
                     <span className="icon"></span>
                     <h4>Mes commandes</h4>
@@ -74,16 +85,8 @@ const MonCompte = ({ setActiveTab }) => (
     </div>
 );
 
-const MesCommandes = () => {
+const MesCommandes = ({ commandes, loading }) => {
     const [activeFilter, setActiveFilter] = useState('Toutes');
-
-    // Données de commandes fictives
-    const commandes = [
-        { id: 'CMD-2026-00142', date: '15 janvier 2026', statut: 'Livrée', prix: '61.90 €' },
-        { id: 'CMD-2026-00098', date: '3 janvier 2026', statut: 'Expédiée', prix: '34.50 €' },
-        { id: 'CMD-2025-00321', date: '18 décembre 2025', statut: 'En préparation', prix: '89.00 €' },
-        { id: 'CMD-2025-00280', date: '5 décembre 2025', statut: 'En attente', prix: '22.00 €' },
-    ];
 
     const filtres = ['Toutes', 'En attente', 'En préparation', 'Expédiée', 'Livrée'];
 
@@ -91,32 +94,53 @@ const MesCommandes = () => {
         ? commandes
         : commandes.filter(c => c.statut === activeFilter);
 
+    if (loading) {
+        return (
+            <div className="ec-view-orders">
+                <h2>Mes Commandes</h2>
+                <p>Chargement...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="ec-view-orders">
             <div className="view-header">
                 <h2>Mes Commandes</h2>
-                <div className="filter-tabs">
-                    {filtres.map(f => (
-                        <button
-                            key={f}
-                            className={activeFilter === f ? 'active' : ''}
-                            onClick={() => setActiveFilter(f)}
-                        >
-                            {f}
-                        </button>
-                    ))}
-                </div>
+                {/* Filtres affichés seulement s'il y a des commandes */}
+                {commandes.length > 0 && (
+                    <div className="filter-tabs">
+                        {filtres.map(f => (
+                            <button
+                                key={f}
+                                className={activeFilter === f ? 'active' : ''}
+                                onClick={() => setActiveFilter(f)}
+                            >
+                                {f}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {commandesFiltrees.length === 0 ? (
+            {/* Aucune commande du tout */}
+            {commandes.length === 0 ? (
+                <div className="empty-state">
+                    <span className="empty-icon"></span>
+                    <h3>Aucune commande pour le moment</h3>
+                    <p>Vos commandes apparaîtront ici une fois que vous aurez effectué un achat.</p>
+                    <Link to="/produits" className="btn-dark">Découvrir la boutique</Link>
+                </div>
+            ) : commandesFiltrees.length === 0 ? (
+                /* Filtre actif mais aucun résultat */
                 <p>Aucune commande dans cette catégorie.</p>
             ) : (
                 commandesFiltrees.map(cmd => (
                     <div className="order-item-card" key={cmd.id}>
                         <div className="order-card-header">
                             <span className="date">{cmd.date}</span>
-                            <span className={`status-badge ${cmd.statut.toLowerCase().replace(' ', '-')}`}>{cmd.statut}</span>
-                            <span className="price">{cmd.prix}</span>
+                            <span className={`status-badge ${cmd.statut.toLowerCase().replace(/ /g, '-')}`}>{cmd.statut}</span>
+                            <span className="price">{cmd.prix.toFixed(2)} €</span>
                         </div>
                         <p className="order-number">Commande {cmd.id}</p>
                         <div className="order-images-preview">
@@ -127,7 +151,6 @@ const MesCommandes = () => {
                             <button className="btn-outline-sm" onClick={() => alert(`Détails de la commande ${cmd.id}`)}>
                                 Voir détails
                             </button>
-                            {/* Commander à l'identique — CDC §4.5 */}
                             <button className="btn-dark-sm" onClick={() => alert(`Commande ${cmd.id} ajoutée au panier`)}>
                                 Commander à l'identique
                             </button>
@@ -153,11 +176,9 @@ const MesAdresses = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (editId !== null) {
-            // Modification
             setAdresses(adresses.map(a => a.id === editId ? { ...a, ...formData } : a));
             setEditId(null);
         } else {
-            // Ajout
             const nouvelleAdresse = { ...formData, id: Date.now(), defaut: adresses.length === 0 };
             setAdresses([...adresses, nouvelleAdresse]);
         }
@@ -186,10 +207,9 @@ const MesAdresses = () => {
                 </button>
             </div>
 
-
             {showForm && (
                 <form onSubmit={handleSubmit} className="address-form" style={{ marginBottom: '24px', padding: '16px', border: '1px solid #ddd', borderRadius: '8px' }}>
-                    <h3 style={{ marginBottom: '12px' }}>{editId ? 'Modifier l\'adresse' : 'Nouvelle adresse'}</h3>
+                    <h3 style={{ marginBottom: '12px' }}>{editId ? "Modifier l'adresse" : 'Nouvelle adresse'}</h3>
                     <div className="form-row">
                         <div className="input-group">
                             <label>Type</label>
@@ -223,7 +243,7 @@ const MesAdresses = () => {
                         <input type="text" name="pays" value={formData.pays} onChange={handleChange} />
                     </div>
                     <button type="submit" className="btn-dark" style={{ marginTop: '12px' }}>
-                        {editId ? 'Enregistrer les modifications' : 'Ajouter l\'adresse'}
+                        {editId ? 'Enregistrer les modifications' : "Ajouter l'adresse"}
                     </button>
                 </form>
             )}
@@ -299,7 +319,6 @@ const MesInformations = () => {
                 <p className="subtitle">Gérez vos informations personnelles et votre mot de passe</p>
             </div>
 
-
             <section className="info-section">
                 <h3>Informations personnelles</h3>
                 <form onSubmit={handleSaveInfo}>
@@ -326,7 +345,6 @@ const MesInformations = () => {
                 </form>
             </section>
 
-
             <section className="info-section">
                 <h3>Modifier le mot de passe</h3>
                 <form onSubmit={handleSaveMdp}>
@@ -347,7 +365,6 @@ const MesInformations = () => {
                 </form>
             </section>
 
-
             <section className="info-section danger-zone">
                 <h3>Supprimer votre compte</h3>
                 <p>La suppression de votre compte est définitive et irréversible.</p>
@@ -357,26 +374,57 @@ const MesInformations = () => {
     );
 };
 
+
 // COMPOSANT PRINCIPAL
 
 const EspaceClient = () => {
     const [activeTab, setActiveTab] = useState('mon-compte');
+    const [commandes, setCommandes] = useState([]); // ✅ Vide au départ — rempli par l'API
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // Déconnexion — CDC §4.5 / §5.1
+    // ✅ Chargement des commandes depuis l'API au montage du composant
+    useEffect(() => {
+        const fetchCommandes = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch('/api/commandes'); // TODO : remplacer par votre endpoint réel
+                const data = await response.json();
+                // L'API doit retourner un tableau d'objets avec :
+                // { id, date, statut, prix (number), articles (number) }
+                setCommandes(data);
+            } catch (error) {
+                console.error('Erreur lors du chargement des commandes :', error);
+                setCommandes([]); // En cas d'erreur, on reste sur un tableau vide
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCommandes();
+    }, []);
+
+    // ✅ Stats calculées dynamiquement depuis les vraies commandes
+    const stats = {
+        totalCommandes:   commandes.length,
+        totalDepense:     commandes.reduce((sum, c) => sum + c.prix, 0).toFixed(2),
+        totalArticles:    commandes.reduce((sum, c) => sum + (c.articles ?? 0), 0),
+        derniereCommande: commandes.length > 0 ? commandes[0] : null,
+    };
+
     const handleDeconnexion = () => {
         // TODO : supprimer le token JWT (localStorage/sessionStorage/cookie)
         // localStorage.removeItem('token');
-        navigate('/'); // Redirection vers l'accueil
+        navigate('/');
     };
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'mon-compte':       return <MonCompte setActiveTab={setActiveTab} />;
-            case 'mes-commandes':    return <MesCommandes />;
+            case 'mon-compte':       return <MonCompte setActiveTab={setActiveTab} stats={stats} />;
+            case 'mes-commandes':    return <MesCommandes commandes={commandes} loading={loading} />;
             case 'mes-adresses':     return <MesAdresses />;
             case 'mes-informations': return <MesInformations />;
-            default:                 return <MonCompte setActiveTab={setActiveTab} />;
+            default:                 return <MonCompte setActiveTab={setActiveTab} stats={stats} />;
         }
     };
 
@@ -401,7 +449,6 @@ const EspaceClient = () => {
                                 <span className="icon"></span> Mes informations
                             </button>
                             <hr />
-
                             <button className="logout-btn" onClick={handleDeconnexion}>
                                 <span className="icon"></span> Déconnexion
                             </button>

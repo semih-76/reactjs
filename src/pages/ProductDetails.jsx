@@ -11,6 +11,13 @@ const WEIGHTS = [
     { label: '1kg',  multiplier: 10 },
 ];
 
+// ✅ Map catégorie DB → valeur URL
+const CATEGORY_URL = {
+    'cafes': 'cafes',
+    'thes': 'thes',
+    'accessoires': 'accessoires',
+};
+
 const ProductDetails = () => {
     const { id } = useParams();
     const { addToCart } = useCart();
@@ -21,7 +28,7 @@ const ProductDetails = () => {
     const [quantity, setQuantity] = useState(1);
     const [added, setAdded] = useState(false);
     const [relatedProducts, setRelatedProducts] = useState([]);
-    const [selectedWeight, setSelectedWeight] = useState(WEIGHTS[0]); // 100g par défaut
+    const [selectedWeight, setSelectedWeight] = useState(WEIGHTS[0]);
 
     useEffect(() => {
         const fetchProduit = async () => {
@@ -33,16 +40,12 @@ const ProductDetails = () => {
                 if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
 
                 const data = await response.json();
-
-                // ✅ CORRECTION 1 : Utiliser "article" au singulier comme dans ton JSON
                 const produitRecu = data.article;
                 setProduit(produitRecu);
 
                 // Fetch des produits liés
                 const allRes = await fetch(`${import.meta.env.VITE_API_URL}/api/articles`);
                 const allData = await allRes.json();
-
-                // ✅ CORRECTION 2 : Vérifier si c'est allData.articles ou allData tout court
                 const all = allData.articles || allData || [];
 
                 const related = all
@@ -59,20 +62,17 @@ const ProductDetails = () => {
             }
         };
         window.scrollTo(0, 0);
-
         void fetchProduit();
     }, [id]);
 
     const incrementQuantity = () => setQuantity(q => q + 1);
     const decrementQuantity = () => setQuantity(q => q > 1 ? q - 1 : 1);
 
-    // Prix pour le grammage sélectionné (sans la quantité)
     const priceForWeight = () => {
         if (!produit) return 0;
         return parseFloat(produit.prix_ttc) * selectedWeight.multiplier;
     };
 
-    // Prix total (grammage × quantité)
     const calculateTotal = () => {
         return (priceForWeight() * quantity).toFixed(2);
     };
@@ -90,7 +90,6 @@ const ProductDetails = () => {
         setTimeout(() => setAdded(false), 2000);
     };
 
-    // Avis clients statiques
     const reviews = [
         { id: 1, author: 'Marie D.', rating: 5, date: '15 janvier 2026', comment: 'Excellent produit, arômes complexes et délicats. Je recommande vivement !' },
         { id: 2, author: 'Pierre L.', rating: 5, date: '8 janvier 2026', comment: 'Un des meilleurs que j\'ai goûtés. Livraison rapide et soignée.' },
@@ -143,8 +142,15 @@ const ProductDetails = () => {
         ? `${import.meta.env.VITE_API_URL}/images/${produit.images}`
         : `https://placehold.co/600x600?text=${produit.nom_produit}`;
 
-    // Sélecteur de grammage uniquement pour Café et Thé
-    const showWeightSelector = produit.categorie !== 'Accessoires';
+    // ✅ Comparaison avec la valeur DB en minuscules
+    const showWeightSelector = produit.categorie !== 'accessoires';
+
+    // ✅ Label lisible pour l'affichage (ex: "cafes" → "Cafés")
+    const categoryLabel = {
+        'cafes': 'Cafés',
+        'thes': 'Thés',
+        'accessoires': 'Accessoires',
+    }[produit.categorie] || produit.categorie;
 
     return (
         <main className="product-details-wrapper">
@@ -156,8 +162,9 @@ const ProductDetails = () => {
                     <span>/</span>
                     <Link to="/produits">Produits</Link>
                     <span>/</span>
-                    <Link to={`/produits?category=${produit.categorie?.toLowerCase()}s`}>
-                        {produit.categorie}
+                    {/* ✅ Lien fil d'ariane avec la bonne valeur URL */}
+                    <Link to={`/produits?category=${CATEGORY_URL[produit.categorie] || produit.categorie}`}>
+                        {categoryLabel}
                     </Link>
                     <span>/</span>
                     <span>{produit.nom_produit}</span>
@@ -182,7 +189,8 @@ const ProductDetails = () => {
                     <div className="product-info-section">
 
                         <span className="product-category-label">
-                            {produit.categorie?.toUpperCase()}
+                            {/*  Affiche le label lisible en majuscules */}
+                            {categoryLabel.toUpperCase()}
                         </span>
 
                         <h1 className="product-title">{produit.nom_produit}</h1>
@@ -239,7 +247,7 @@ const ProductDetails = () => {
 
                         {/* ── QUANTITÉ ── */}
                         <div className="quantity-selector-section">
-                            <label>Nombre d'unités</label>
+                            <label htmlFor="quantity-input">Nombre d'unités</label>
                             <div className="quantity-controls">
                                 <button onClick={decrementQuantity}>−</button>
                                 <input type="number" value={quantity} readOnly />
@@ -301,15 +309,15 @@ const ProductDetails = () => {
                                             <img src={relatedImage} alt={item.nom_produit} />
                                         </div>
                                         <div className="catalog-product-info">
-                            <span className="catalog-product-category">
-                                {item.categorie?.toUpperCase() || 'PRODUIT'}
-                            </span>
+                                            <span className="catalog-product-category">
+                                                {item.categorie?.toUpperCase() || 'PRODUIT'}
+                                            </span>
                                             <h3 className="catalog-product-name">{item.nom_produit}</h3>
                                             <div className="catalog-product-footer">
                                                 <div className="catalog-product-prices">
-                                    <span className="price-current">
-                                        {parseFloat(item.prix_ttc).toFixed(2)} €
-                                    </span>
+                                                    <span className="price-current">
+                                                        {parseFloat(item.prix_ttc).toFixed(2)} €
+                                                    </span>
                                                 </div>
                                                 <button
                                                     className="add-to-cart-btn"

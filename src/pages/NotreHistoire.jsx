@@ -20,7 +20,8 @@ const NotreHistoire = () => {
             <section className="histoire-image-section"histoire-image-section>
                 <div className="histoire-image-container">
                     <img
-                        src="/images/andreeew-hoang-8xRpVcOjP9E-unsplash.jpg"
+                        loading="lazy"
+                        src="/images/andreeew-hoang-8xRpVcOjP9E-unsplash.webp"
                         alt="intérieur boutique CafThé"
                         className="histoire-main-image"
                     />

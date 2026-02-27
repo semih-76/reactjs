@@ -23,10 +23,9 @@ const ProductList = ({ limit }) => {
 
     useEffect(() => {
         setSelectedCategory(category);
-        setCurrentPage(1); // reset page quand catégorie URL change
+        setCurrentPage(1);
     }, [category]);
 
-    // Reset page quand les filtres changent
     useEffect(() => {
         setCurrentPage(1);
     }, [selectedCategory, selectedPrice, sortBy]);
@@ -56,11 +55,9 @@ const ProductList = ({ limit }) => {
         if (limit) return filtered.slice(0, limit);
 
         if (selectedCategory !== 'all') {
-            filtered = filtered.filter(p => {
-                const cat = normalize(p.categorie);
-                const selected = normalize(selectedCategory);
-                return cat.startsWith(selected.replace(/s$/, ''));
-            });
+            filtered = filtered.filter(p =>
+                normalize(p.categorie) === normalize(selectedCategory)
+            );
         }
 
         if (selectedPrice === 'less20') {
@@ -81,7 +78,6 @@ const ProductList = ({ limit }) => {
 
     const filteredProducts = getFilteredProducts();
 
-    // Pagination
     const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
     const paginatedProducts = filteredProducts.slice(
         (currentPage - 1) * PRODUCTS_PER_PAGE,
@@ -100,7 +96,6 @@ const ProductList = ({ limit }) => {
         return 'Tous les produits';
     };
 
-    // Génère les numéros de pages à afficher (avec ellipses)
     const getPageNumbers = () => {
         const pages = [];
         if (totalPages <= 5) {
@@ -117,7 +112,6 @@ const ProductList = ({ limit }) => {
         return pages;
     };
 
-    // Composant carte produit réutilisable
     const ProductCard = ({ product }) => {
         const imageUrl = product.images
             ? `${import.meta.env.VITE_API_URL}/images/${product.images}`
@@ -132,7 +126,7 @@ const ProductList = ({ limit }) => {
             <Link to={`/produit/${product.ID_Article}`} className="catalog-product-card">
                 {hasDiscount && <span className="discount-badge">-{discountPercent}%</span>}
                 <div className="catalog-product-image">
-                    <img src={imageUrl} alt={product.nom_produit} />
+                    <img src={imageUrl} loading="lazy" alt={product.nom_produit} />
                 </div>
                 <div className="catalog-product-info">
                     <span className="catalog-product-category">
@@ -153,7 +147,7 @@ const ProductList = ({ limit }) => {
                             onClick={(e) => {
                                 e.preventDefault();
                                 addToCart({
-                                    id: product.id_articles,
+                                    id: product.ID_Article,
                                     nom: product.nom_produit,
                                     prixUnitaire: parseFloat(product.prix_ttc),
                                     categorie: product.categorie,
@@ -169,7 +163,6 @@ const ProductList = ({ limit }) => {
         );
     };
 
-    // Composant Pagination
     const Pagination = () => {
         if (totalPages <= 1) return null;
 
@@ -179,7 +172,6 @@ const ProductList = ({ limit }) => {
                     Page {currentPage} sur {totalPages} — {filteredProducts.length} produits
                 </div>
                 <div className="pagination-controls">
-                    {/* Précédent */}
                     <button
                         className={`pagination-btn pagination-btn--prev ${currentPage === 1 ? 'disabled' : ''}`}
                         onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
@@ -189,7 +181,6 @@ const ProductList = ({ limit }) => {
                         ←
                     </button>
 
-                    {/* Numéros */}
                     {getPageNumbers().map((page, index) =>
                         page === '...' ? (
                             <span key={`ellipsis-${index}`} className="pagination-ellipsis">···</span>
@@ -206,7 +197,6 @@ const ProductList = ({ limit }) => {
                         )
                     )}
 
-                    {/* Suivant */}
                     <button
                         className={`pagination-btn pagination-btn--next ${currentPage === totalPages ? 'disabled' : ''}`}
                         onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
@@ -242,7 +232,8 @@ const ProductList = ({ limit }) => {
 
         return (
             <div className="products-grid-home">
-                {filteredProducts.map((product) => <ProductCard key={product.id_articles} product={product} />)}
+                {/* ✅ Correction : id_articles → ID_Article */}
+                {filteredProducts.map((product) => <ProductCard key={product.ID_Article} product={product} />)}
             </div>
         );
     }
@@ -305,15 +296,14 @@ const ProductList = ({ limit }) => {
                 </div>
 
                 <div className="catalog-layout">
-                    {/* ── SIDEBAR ── */}
                     <aside className="catalog-sidebar">
                         <div className="filter-section">
                             <h3 className="filter-title">Catégorie</h3>
                             <div className="filter-options">
                                 {[
-                                    { value: 'all', label: 'Tous les produits' },
-                                    { value: 'thes', label: 'Thés' },
-                                    { value: 'cafes', label: 'Cafés' },
+                                    { value: 'all',         label: 'Tous les produits' },
+                                    { value: 'thes',        label: 'Thés' },
+                                    { value: 'cafes',       label: 'Cafés' },
                                     { value: 'accessoires', label: 'Accessoires' },
                                 ].map(({ value, label }) => (
                                     <label className="filter-option" key={value}>
@@ -333,9 +323,9 @@ const ProductList = ({ limit }) => {
                             <h3 className="filter-title">Prix</h3>
                             <div className="filter-options">
                                 {[
-                                    { value: 'all', label: 'Tous les prix' },
+                                    { value: 'all',    label: 'Tous les prix' },
                                     { value: 'less20', label: 'Moins de 20€' },
-                                    { value: '20-40', label: '20€ - 40€' },
+                                    { value: '20-40',  label: '20€ - 40€' },
                                     { value: 'more40', label: 'Plus de 40€' },
                                 ].map(({ value, label }) => (
                                     <label className="filter-option" key={value}>
@@ -367,7 +357,6 @@ const ProductList = ({ limit }) => {
                         </div>
                     </aside>
 
-                    {/* ── PRODUITS + PAGINATION ── */}
                     <section className="catalog-products">
                         {filteredProducts.length === 0 ? (
                             <div className="no-products">Aucun produit trouvé</div>
@@ -375,7 +364,8 @@ const ProductList = ({ limit }) => {
                             <>
                                 <div className="products-grid">
                                     {paginatedProducts.map((product) => (
-                                        <ProductCard key={product.id_articles} product={product} />
+                                        // ✅ Correction : id_articles → ID_Article
+                                        <ProductCard key={product.ID_Article} product={product} />
                                     ))}
                                 </div>
                                 <Pagination />

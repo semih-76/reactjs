@@ -66,6 +66,18 @@ const Home = () => {
                 </div>
             </section>
 
+            <section className="home-cta">
+                <div className="histoire-cta-overlay">
+                    <div className="histoire-container histoire-cta-inner">
+                        <h2>Rejoignez la communauté CafThé !</h2>
+                        <p>Créez votre compte et profitez d'offres exclusives réservées à nos membres.</p>
+                        <Link to="/inscription" className="btn-outline">
+                            S'inscrire →
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
         </div>
     );
 };

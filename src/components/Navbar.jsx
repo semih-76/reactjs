@@ -49,12 +49,12 @@ const Navbar = () => {
             <nav className='navbar'>
                 <div className="nav-logo">
                     <Link to='/'>
-                        <img src="/images/Logo.svg" alt="CafThé" />
+                        <img src="/images/Logo.webp" alt="CafThé" />
                     </Link>
                 </div>
 
                 <div className="nav-group-links">
-                    <NavLink to="/">Accueil</NavLink>
+                    <NavLink to="/"  aria-label="Accueil">Accueil</NavLink>
                     <span className="separator">|</span>
 
                     <div
@@ -62,7 +62,7 @@ const Navbar = () => {
                         onMouseEnter={() => setShowCatalogue(true)}
                         onMouseLeave={() => setShowCatalogue(false)}
                     >
-                        <NavLink to="/catalogue" className="dropdown-trigger">
+                        <NavLink to="produits" className="dropdown-trigger" aria-label="Catalogue">
                             Catalogue <FiChevronDown style={{ fontSize: '0.8rem', marginLeft: '4px' }} />
                         </NavLink>
 
@@ -110,6 +110,7 @@ const Navbar = () => {
                 <form className="search-bar-form" onSubmit={handleSearchSubmit}>
                     <FiSearch className="search-bar-icon" />
                     <input
+                        aria-label="Rechercher"
                         ref={searchInputRef}
                         type="text"
                         className="search-bar-input"

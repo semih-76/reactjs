@@ -169,7 +169,7 @@ const Register = () => {
                                 required
                             />
                             <span>
-                                J'accepte les <Link to="/cgv">conditions générales d'utilisation</Link>
+                                J'accepte les <Link to="/cgu">conditions générales d'utilisation</Link>
                             </span>
                         </label>
                     </div>
