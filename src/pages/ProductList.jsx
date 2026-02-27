@@ -112,7 +112,7 @@ const ProductList = ({ limit }) => {
         return pages;
     };
 
-    const ProductCard = ({ product }) => {
+    const ProductCard = ({ product, priority = false }) => {
         const imageUrl = product.images
             ? `${import.meta.env.VITE_API_URL}/images/${product.images}`
             : 'https://placehold.co/400x400?text=Produit';
@@ -126,12 +126,20 @@ const ProductList = ({ limit }) => {
             <Link to={`/produit/${product.ID_Article}`} className="catalog-product-card">
                 {hasDiscount && <span className="discount-badge">-{discountPercent}%</span>}
                 <div className="catalog-product-image">
-                    <img src={imageUrl} loading="lazy" alt={product.nom_produit} />
+                    <img
+                        src={imageUrl}
+                        alt={product.nom_produit}
+                        width={400}
+                        height={400}
+                        loading={priority ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={priority ? "high" : "auto"}
+                    />
                 </div>
                 <div className="catalog-product-info">
-                    <span className="catalog-product-category">
-                        {product.categorie?.toUpperCase() || 'PRODUIT'}
-                    </span>
+                <span className="catalog-product-category">
+                    {product.categorie?.toUpperCase() || 'PRODUIT'}
+                </span>
                     <h3 className="catalog-product-name">{product.nom_produit}</h3>
                     <div className="catalog-product-footer">
                         <div className="catalog-product-prices">
@@ -139,8 +147,8 @@ const ProductList = ({ limit }) => {
                                 <span className="price-original">{parseFloat(product.prix_barre).toFixed(2)} €</span>
                             )}
                             <span className={`price-current ${hasDiscount ? 'price-discounted' : ''}`}>
-                                {parseFloat(product.prix_ttc).toFixed(2)} €
-                            </span>
+                            {parseFloat(product.prix_ttc).toFixed(2)} €
+                        </span>
                         </div>
                         <button
                             className="add-to-cart-btn"
@@ -210,7 +218,6 @@ const ProductList = ({ limit }) => {
         );
     };
 
-    // ── MODE HOME ──
     if (limit) {
         if (isLoading) {
             return (
@@ -232,13 +239,13 @@ const ProductList = ({ limit }) => {
 
         return (
             <div className="products-grid-home">
-                {/* ✅ Correction : id_articles → ID_Article */}
-                {filteredProducts.map((product) => <ProductCard key={product.ID_Article} product={product} />)}
+                {filteredProducts.map((product, index) => (
+                    <ProductCard key={product.ID_Article} product={product} priority={index === 0} />
+                ))}
             </div>
         );
     }
 
-    // ── MODE CATALOGUE LOADING ──
     if (isLoading) {
         return (
             <main className="catalog-wrapper">
@@ -267,7 +274,6 @@ const ProductList = ({ limit }) => {
         );
     }
 
-    // ── MODE CATALOGUE ERREUR ──
     if (error) {
         return (
             <main className="catalog-wrapper">
@@ -286,7 +292,6 @@ const ProductList = ({ limit }) => {
         );
     }
 
-    // ── MODE CATALOGUE COMPLET ──
     return (
         <main className="catalog-wrapper">
             <div className="catalog-container">
@@ -363,9 +368,8 @@ const ProductList = ({ limit }) => {
                         ) : (
                             <>
                                 <div className="products-grid">
-                                    {paginatedProducts.map((product) => (
-                                        // ✅ Correction : id_articles → ID_Article
-                                        <ProductCard key={product.ID_Article} product={product} />
+                                    {paginatedProducts.map((product, index) => (
+                                        <ProductCard key={product.ID_Article} product={product} priority={index === 0} />
                                     ))}
                                 </div>
                                 <Pagination />

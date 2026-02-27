@@ -1,58 +1,62 @@
 import React from 'react';
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
     return (
         <footer className="footer">
             <div className="footer-container">
-
                 <div className="footer-brand">
                     <div className="nav-logo">
                         <Link to='/'>
-                            <img src="/images/Logo.webp" alt="CafThé" />
+                            {/* SEO & PERF: Dimensions explicites + alt descriptif */}
+                            <img
+                                src="/images/Logo.webp"
+                                alt="CafThé - Maison de thé et café d'exception"
+                                width="135"
+                                height="135"
+                            />
                         </Link>
                     </div>
                     <p className="brand-description">
-                        L'excellence du thé et du café,
-                        sélectionnés avec passion.
+                        L'excellence du thé et du café, sélectionnés avec passion.
                     </p>
                 </div>
-
 
                 <div className="footer-links">
                     <div className="footer-column">
                         <h4>Mon Espace</h4>
                         <ul>
-                            <li><a href="/register">Créer un compte</a></li>
-                            <li><a href="/login">Connexion</a></li>
+                            {/* PERF: Utilisation de Link (React Router) au lieu de <a> */}
+                            <li><Link to="/register">Créer un compte</Link></li>
+                            <li><Link to="/login">Connexion</Link></li>
                         </ul>
                     </div>
 
                     <div className="footer-column">
                         <h4>Boutique</h4>
                         <ul>
-                            <li><a href="/category/thes">Thés</a></li>
-                            <li><a href="/category/cafes">Cafés</a></li>
-                            <li><a href="/category/accessoires">Accessoires</a></li>
+                            <li><Link to="/produits?category=thes">Thés</Link></li>
+                            <li><Link to="/produits?category=cafes">Cafés</Link></li>
+                            <li><Link to="/produits?category=accessoires">Accessoires</Link></li>
                         </ul>
                     </div>
 
                     <div className="footer-column">
                         <h4>Informations</h4>
                         <ul>
-                            <li><a href="/about">Notre Histoire</a></li>
-                            <li><a href="/cgv">CGV</a></li>
-                            <li><a href="/mentions-legales">Mentions légales</a></li>
-                            <li><a href="/plan">Plan du Site</a></li>
+                            <li><Link to="/about">Notre Histoire</Link></li>
+                            <li><Link to="/cgv">CGV</Link></li>
+                            <li><Link to="/mentions-legales">Mentions légales</Link></li>
+                            <li><Link to="/plan">Plan du Site</Link></li>
                         </ul>
                     </div>
 
                     <div className="footer-column">
                         <h4>Aide</h4>
                         <ul>
-                            <li><a href="/livraison">Livraison</a></li>
-                            <li><a href="/contact">Contact</a></li>
-                            <li><a href="/faq">FAQ</a></li>
+                            <li><Link to="/livraison">Livraison</Link></li>
+                            <li><Link to="/contact">Contact</Link></li>
+                            <li><Link to="/faq">FAQ</Link></li>
                         </ul>
                     </div>
                 </div>

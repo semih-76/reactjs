@@ -14,6 +14,14 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('monPanier', JSON.stringify(items));
     }, [items]);
 
+    // ✅ Total calculé automatiquement depuis les items
+    const total = items.reduce((sum, item) => {
+        return sum + (parseFloat(item.prixUnitaire || item.prix || 0) * item.quantite);
+    }, 0);
+
+    // ✅ Nombre total d'articles dans le panier
+    const totalItems = items.reduce((sum, item) => sum + item.quantite, 0);
+
     const showToast = useCallback((product) => {
         const id = Date.now();
         setToasts(prev => [...prev, { id, product }]);
@@ -26,24 +34,17 @@ export const CartProvider = ({ children }) => {
         console.log("Produit reçu dans le panier:", product);
         setItems(prevItems => {
             const existingItem = prevItems.find(item => item.id === product.id);
-
             if (existingItem) {
-
                 return prevItems.map(item =>
                     item.id === product.id
                         ? { ...item, quantite: item.quantite + 1 }
                         : item
                 );
             }
-
-
             return [...prevItems, { ...product, quantite: 1 }];
         });
-
         showToast(product);
     };
-
-
 
     const removeItem = (id) => {
         setItems(prevItems => prevItems.filter(item => item.id !== id));
@@ -59,12 +60,10 @@ export const CartProvider = ({ children }) => {
         );
     };
 
-
-
     return (
-        <CartContext.Provider value={{ items, addToCart, removeItem, updateQuantity }}>
+        // ✅ On expose total et totalItems
+        <CartContext.Provider value={{ items, addToCart, removeItem, updateQuantity, total, totalItems }}>
             {children}
-
 
             <div className="toast-container">
                 {toasts.map(({ id, product }) => {

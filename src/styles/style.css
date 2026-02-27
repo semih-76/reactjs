@@ -62,23 +62,12 @@ body {
     bottom: 20px;
     z-index: 1;
 
-    filter:
-            drop-shadow(0 0 6px rgba(212, 175, 55, 0.25))
-            drop-shadow(0 0 18px rgba(212, 175, 55, 0.12))
-            drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25))
-            drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
-
     transition:
-            filter 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+
             transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .nav-logo a:hover img {
-    filter:
-            drop-shadow(0 0 10px rgba(245, 230, 163, 0.45))
-            drop-shadow(0 0 28px rgba(212, 175, 55, 0.3))
-            drop-shadow(0 0 55px rgba(212, 175, 55, 0.12))
-            drop-shadow(0 6px 16px rgba(0, 0, 0, 0.3));
 
     transform: scale(1.04) translateY(-1px);
 }
@@ -570,6 +559,7 @@ body {
 }
 
 .home-cta .btn-outline {
+    pointer-events: auto;
     margin-top: 65px;
     color: white;
     border-color: white;
@@ -578,7 +568,7 @@ body {
 .home-cta .btn-outline:hover {
     background-color: #D9C09B !important;
     border-color: #D9C09B !important;
-    color: white !important;
+    color: #000000 !important;
 }
 
 .home-cta::before {
@@ -949,6 +939,7 @@ body {
 }
 
 .auth-submit:hover {
+    transition: all 0.25s ease;
     background-color: #333;
 }
 
@@ -3388,6 +3379,7 @@ body {
 
 /* Boutons submit général */
 .auth-submit:hover {
+    transition: all 0.25s ease;
     background-color: #D9C09B !important;
 }
 
@@ -3757,7 +3749,6 @@ body {
     margin: 0;
 }
 
-
 /* ── CTA ── */
 .histoire-cta {
     width: 100%;
@@ -3768,11 +3759,25 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     padding: 0;
+}
 
+/* Dégradé sombre uniquement sur le ::before */
+.histoire-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(0, 0, 0, 0.15) 30%,
+            rgba(0, 0, 0, 0.65) 70%,
+            rgba(0, 0, 0, 0.82) 100%
+    );
+    pointer-events: none; /* ✅ bloque les clics uniquement sur le dégradé */
 }
 
 /* Dégradé : transparent en haut → noir en bas */
-.histoire-cta::before {
+.histoire-cta-overlay, .histoire-cta::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -3787,16 +3792,23 @@ body {
 }
 
 .histoire-cta-overlay {
-    margin-top: 0.5rem;
-
+    position: relative; /* ✅ pas absolute */
+    z-index: 2;
     display: flex;
     align-items: center;
-    position: relative;
-    z-index: 2;
     padding: 120px 20px 100px;
+    pointer-events: auto; /* ✅ autorise les clics */
+}
+
+.histoire-cta-inner h2 {
+    top: 0;
+    font-size: 2.5rem;
+    padding-bottom: 15px;
 }
 
 .histoire-cta-inner {
+    position: relative;
+    z-index: 10;
     text-align: center;
     max-width: 600px;
     margin: 0 auto;
@@ -3825,7 +3837,7 @@ body {
 .histoire-cta .btn-outline:hover {
     background-color: #D9C09B !important;
     border-color: #D9C09B !important;
-    color: #FFFFFF !important;
+    color: #000000 !important;
 }
 
 /* ── RESPONSIVE ── */
@@ -3997,6 +4009,173 @@ body {
 .nav-search-btn {
     padding-right: 30px; /* même que .nav-icon */
     font-size: 1.3rem;   /* même que .nav-icon */
+}
+
+/* Spinner */
+.search-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-top-color: #333;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ========================================
+   DROPDOWN RECHERCHE LIVE — CAFTHÉ
+======================================== */
+
+/* Conteneur des résultats, dans l'overlay */
+.search-results-dropdown {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 8px;
+    background-color: #FDFBF7;
+    border-top: 1px solid #E8E2D9;
+    max-height: 420px;
+    overflow-y: auto;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Scrollbar discrète */
+.search-results-dropdown::-webkit-scrollbar {
+    width: 4px;
+}
+.search-results-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+.search-results-dropdown::-webkit-scrollbar-thumb {
+    background-color: #D9C09B;
+    border-radius: 2px;
+}
+
+/* ── CHAQUE RÉSULTAT ── */
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 30px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    border-left: 2px solid transparent;
+}
+
+.search-result-item:hover {
+    background-color: #FAF7F3;
+    border-left-color: #D9C09B;
+}
+
+/* Image carrée avec fond gris clair */
+.search-result-img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background-color: #F0EDE8;
+}
+
+/* Placeholder si pas d'image */
+.search-result-img-placeholder {
+    width: 52px;
+    height: 52px;
+    background-color: #F0EDE8;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #C9A876;
+}
+
+/* Infos texte */
+.search-result-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Catégorie en petit doré */
+.search-result-category {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #C9A876;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+}
+
+/* Nom du produit */
+.search-result-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1A1A1A;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Prix */
+.search-result-price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 400;
+}
+
+/* ── AUCUN RÉSULTAT ── */
+.search-result-empty {
+    padding: 28px 30px;
+    color: #AAAAAA;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+}
+
+/* ── VOIR TOUS LES RÉSULTATS ── */
+.search-result-all {
+    padding: 10px 30px 4px;
+    border-top: 1px solid #F0EDE8;
+    margin-top: 4px;
+}
+
+.search-result-all button {
+    background: none;
+    border: none;
+    color: #C9A876;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.search-result-all button:hover {
+    color: #1A1A1A;
+}
+
+/* ── SPINNER ── */
+.search-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid #E8E2D9;
+    border-top-color: #D9C09B;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* ========================================

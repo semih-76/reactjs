@@ -26,6 +26,7 @@ import { CheckoutProvider } from "./pages/CheckoutContext.jsx";
 
 import './styles/style.css';
 import './styles/responsive.css';
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 
 
@@ -34,30 +35,30 @@ function App() {
         <AuthProvider>
             <CartProvider>
                     <BrowserRouter>
-                        <CheckoutProvider>
-                        <Routes>
-                            <Route path="/" element={<Layout />}>
-                                <Route index element={<Home />} />
-                                <Route path="produit/:id" element={<ProductDetails />} />
-                                <Route path="login" element={<Login />} />
-                                <Route path="register" element={<Register />} />
-                                <Route path="produits" element={<ProductList />} />
-                                <Route path="panier" element={<Panier />} />
-                                <Route path="espace-client" element={<EspaceClient />} />
-                                <Route path="about" element={<NotreHistoire />} />
-                                <Route path="mentions-legales" element={<MentionsLegales />} />
-                                <Route path="cgv" element={<CGV />} />
-                                <Route path="contact" element={<Contact />} />
-                                <Route path="faq" element={<FAQ />} />
-                                <Route path="plan" element={<PlanduSite />} />
+                        <ScrollToTop />
+                            <CheckoutProvider>
+                            <Routes>
+                                <Route path="/" element={<Layout />}>
+                                    <Route index element={<Home />} />
+                                    <Route path="produit/:id" element={<ProductDetails />} />
+                                    <Route path="login" element={<Login />} />
+                                    <Route path="register" element={<Register />} />
+                                    <Route path="produits" element={<ProductList />} />
+                                    <Route path="panier" element={<Panier />} />
+                                    <Route path="espace-client" element={<EspaceClient />} />
+                                    <Route path="about" element={<NotreHistoire />} />
+                                    <Route path="mentions-legales" element={<MentionsLegales />} />
+                                    <Route path="cgv" element={<CGV />} />
+                                    <Route path="contact" element={<Contact />} />
+                                    <Route path="faq" element={<FAQ />} />
+                                    <Route path="plan" element={<PlanduSite />} />
 
+                                    <Route path="checkout/livraison" element={<CheckoutLivraison />} />
+                                    <Route path="checkout/paiement" element={<Checkoutpaiement />} />
+                                    <Route path="checkout/confirmation" element={<Checkoutconfirmation />} />
 
-                                <Route path="checkout/livraison" element={<CheckoutLivraison />} />
-                                <Route path="checkout/paiement" element={<Checkoutpaiement />} />
-                                <Route path="checkout/confirmation" element={<Checkoutconfirmation />} />
-
-                            </Route>
-                        </Routes>
+                                </Route>
+                            </Routes>
                         </CheckoutProvider>
                     </BrowserRouter>
             </CartProvider>

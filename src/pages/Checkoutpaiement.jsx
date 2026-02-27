@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "./CheckoutContext";
-
+import { useCart } from "../context/CartContext";
 
 // Barre de progression
 const CheckoutSteps = ({ current }) => {
@@ -32,6 +32,7 @@ const formatExpiry = (val) => {
 const CheckoutPaiement = () => {
     const navigate = useNavigate();
     const { checkoutData, updateCheckout } = useCheckout();
+    const { items, total } = useCart(); // ✅ récupère les articles et le total du panier
 
     const isMagasin = checkoutData.deliveryMode === "magasin";
 
@@ -71,6 +72,7 @@ const CheckoutPaiement = () => {
                 paymentMethod,
                 orderId: fakeOrderId,
                 orderDate: fakeDate,
+                total, // ✅ on sauvegarde aussi le total dans le contexte checkout
             });
 
             navigate("/checkout/confirmation");
@@ -207,6 +209,14 @@ const CheckoutPaiement = () => {
                     <div className="checkout-summary-card">
                         <h3>Récapitulatif</h3>
 
+                        {/* ✅ Liste des articles du panier */}
+                        {items.map((item) => (
+                            <div className="summary-line" key={item.id}>
+                                <span>{item.nom_produit || item.nom} × {item.quantite}</span>
+                                <span>{(parseFloat(item.prix_ttc || item.prix || 0) * item.quantite).toFixed(2)} €</span>
+                            </div>
+                        ))}
+
                         <div className="summary-recap-block">
                             <span className="summary-recap-label">Livraison</span>
                             <span>{checkoutData.deliveryMode === "magasin" ? "Retrait en boutique" : "À domicile"}</span>
@@ -214,15 +224,15 @@ const CheckoutPaiement = () => {
 
                         <div className="summary-line">
                             <span>Sous-total</span>
-                            <span>—</span>
+                            <span>{total.toFixed(2)} €</span>
                         </div>
                         <div className="summary-line">
                             <span>Livraison</span>
-                            <span>{checkoutData.deliveryMode === "magasin" ? "Gratuit" : "—"}</span>
+                            <span className="free-shipping">Gratuit</span>
                         </div>
                         <div className="summary-total">
                             <span>Total TTC</span>
-                            <span>{checkoutData.total ? `${checkoutData.total.toFixed(2)} €` : "—"}</span>
+                            <span>{total.toFixed(2)} €</span>
                         </div>
 
                         <button type="submit" className="btn-checkout-next" disabled={loading}>
