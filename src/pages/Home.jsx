@@ -63,7 +63,7 @@ const Home = () => {
                     <div className="histoire-container histoire-cta-inner">
                         <h2>Rejoignez la communauté CafThé !</h2>
                         <p>Créez votre compte et profitez d'offres exclusives réservées à nos membres.</p>
-                        <Link to="/inscription" className="btn-outline">
+                        <Link to="/register" className="btn-outline">
                             S'inscrire →
                         </Link>
                     </div>

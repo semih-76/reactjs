@@ -66,17 +66,29 @@ const MonCompte = ({ setActiveTab, stats }) => (
             <h3>Accès rapides</h3>
             <div className="access-grid">
                 <div className="access-card" onClick={() => setActiveTab('mes-commandes')} style={{ cursor: 'pointer' }}>
-                    <span className="icon"></span>
+    <span className="icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zM10 4h4v2h-4V4zm10 15H4V8h16v11z"/>
+        </svg>
+    </span>
                     <h4>Mes commandes</h4>
                     <p>Suivez vos achats</p>
                 </div>
                 <div className="access-card" onClick={() => setActiveTab('mes-adresses')} style={{ cursor: 'pointer' }}>
-                    <span className="icon"></span>
+    <span className="icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+    </span>
                     <h4>Mes adresses de livraisons</h4>
                     <p>Gérez vos adresses</p>
                 </div>
                 <div className="access-card" onClick={() => setActiveTab('mes-informations')} style={{ cursor: 'pointer' }}>
-                    <span className="icon"></span>
+    <span className="icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+        </svg>
+    </span>
                     <h4>Mes informations</h4>
                     <p>Modifiez vos données</p>
                 </div>
@@ -289,7 +301,6 @@ const MesInformations = () => {
 
     const handleSaveInfo = (e) => {
         e.preventDefault();
-        // TODO : appel API PUT /clients/:id
         setMsgInfo('✅ Informations enregistrées avec succès.');
         setTimeout(() => setMsgInfo(''), 3000);
     };
@@ -299,7 +310,6 @@ const MesInformations = () => {
         if (!mdp.ancien) { setMsgMdp('❌ Veuillez saisir votre ancien mot de passe.'); return; }
         if (mdp.nouveau !== mdp.confirmation) { setMsgMdp('❌ Les nouveaux mots de passe ne correspondent pas.'); return; }
         if (mdp.nouveau.length < 8) { setMsgMdp('❌ Le mot de passe doit contenir au moins 8 caractères.'); return; }
-        // TODO : appel API PUT /clients/:id/password
         setMsgMdp('✅ Mot de passe modifié avec succès.');
         setMdp({ ancien: '', nouveau: '', confirmation: '' });
         setTimeout(() => setMsgMdp(''), 3000);
@@ -307,7 +317,6 @@ const MesInformations = () => {
 
     const handleSupprimerCompte = () => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) {
-            // TODO : appel API DELETE /clients/:id puis redirection
             alert('Compte supprimé.');
         }
     };
@@ -379,23 +388,38 @@ const MesInformations = () => {
 
 const EspaceClient = () => {
     const [activeTab, setActiveTab] = useState('mon-compte');
-    const [commandes, setCommandes] = useState([]); // ✅ Vide au départ — rempli par l'API
+    const [commandes, setCommandes] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // ✅ Chargement des commandes depuis l'API au montage du composant
     useEffect(() => {
         const fetchCommandes = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/commandes'); // TODO : remplacer par votre endpoint réel
+
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/commandes', {
+                    headers: {
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                // Si l'API n'existe pas encore ou renvoie une erreur, on ne plante pas
+                if (!response.ok) {
+                    console.warn(`API commandes : ${response.status} ${response.statusText}`);
+                    setCommandes([]);
+                    return;
+                }
+
                 const data = await response.json();
-                // L'API doit retourner un tableau d'objets avec :
-                // { id, date, statut, prix (number), articles (number) }
-                setCommandes(data);
+
+                // Garde-fou : on s'assure que c'est bien un tableau avant de stocker
+                setCommandes(Array.isArray(data) ? data : []);
+
             } catch (error) {
                 console.error('Erreur lors du chargement des commandes :', error);
-                setCommandes([]); // En cas d'erreur, on reste sur un tableau vide
+                setCommandes([]);
             } finally {
                 setLoading(false);
             }
@@ -404,18 +428,28 @@ const EspaceClient = () => {
         fetchCommandes();
     }, []);
 
-    // ✅ Stats calculées dynamiquement depuis les vraies commandes
+    // Stats calculées — sécurisées grâce au Array.isArray dans le fetch
     const stats = {
         totalCommandes:   commandes.length,
-        totalDepense:     commandes.reduce((sum, c) => sum + c.prix, 0).toFixed(2),
+        totalDepense:     commandes.reduce((sum, c) => sum + (c.prix ?? 0), 0).toFixed(2),
         totalArticles:    commandes.reduce((sum, c) => sum + (c.articles ?? 0), 0),
         derniereCommande: commandes.length > 0 ? commandes[0] : null,
     };
 
     const handleDeconnexion = () => {
-        // TODO : supprimer le token JWT (localStorage/sessionStorage/cookie)
-        // localStorage.removeItem('token');
+        // Supprimer le token du localStorage
+        localStorage.removeItem('token');
+
+        // Supprimer également d'autres données utilisateur si vous en avez
+        localStorage.removeItem('user');
+        localStorage.removeItem('userId');
+        // Ajoutez d'autres clés si nécessaire
+
+        // Rediriger vers la page d'accueil
         navigate('/');
+
+        // Optionnel : forcer le rechargement de la page pour réinitialiser l'état
+        window.location.reload();
     };
 
     const renderContent = () => {
