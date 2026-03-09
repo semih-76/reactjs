@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
-import { useCart } from "../context/CartContext";
+import ProductCard from "../components/ProductCard.jsx";
 
 const normalize = (str) =>
   str
@@ -11,15 +11,7 @@ const normalize = (str) =>
 
 const PRODUCTS_PER_PAGE = 9;
 
-const GRAMMAGES = [
-  { label: "100g", coeff: 1 },
-  { label: "250g", coeff: 2.5 },
-  { label: "500g", coeff: 5 },
-  { label: "1kg", coeff: 10 },
-];
-
 const ProductList = ({ limit }) => {
-  const { addToCart } = useCart();
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category") || "all";
 
@@ -63,10 +55,11 @@ const ProductList = ({ limit }) => {
 
   const getFilteredProducts = () => {
     let filtered = [...produits];
-
     if (limit) return filtered.slice(0, limit);
 
-    if (selectedCategory !== "all") {
+    if (selectedCategory === "promos") {
+      filtered = filtered.filter((p) => p.promo_active);
+    } else if (selectedCategory !== "all") {
       filtered = filtered.filter(
         (p) => normalize(p.categorie) === normalize(selectedCategory),
       );
@@ -95,7 +88,6 @@ const ProductList = ({ limit }) => {
   };
 
   const filteredProducts = getFilteredProducts();
-
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice(
     (currentPage - 1) * PRODUCTS_PER_PAGE,
@@ -111,6 +103,7 @@ const ProductList = ({ limit }) => {
     if (selectedCategory === "cafes") return "Cafés";
     if (selectedCategory === "thes") return "Thés";
     if (selectedCategory === "accessoires") return "Accessoires";
+    if (selectedCategory === "promos") return "Promotions";
     return "Tous les produits";
   };
 
@@ -145,117 +138,8 @@ const ProductList = ({ limit }) => {
     return pages;
   };
 
-  const ProductCard = ({ product, priority = false }) => {
-    const imageUrl = product.images
-      ? `${import.meta.env.VITE_API_URL}/images/${product.images}`
-      : "https://placehold.co/400x400?text=Produit";
-
-    const isWeighed = ["cafe", "cafes", "the", "thes"].includes(
-      normalize(product.categorie),
-    );
-
-    const [selectedGrammage, setSelectedGrammage] = useState(GRAMMAGES[0]);
-
-    const basePrice = parseFloat(product.prix_ttc);
-    const displayPrice = isWeighed
-      ? basePrice * selectedGrammage.coeff
-      : basePrice;
-
-    const hasDiscount =
-      product.prix_barre && parseFloat(product.prix_barre) > basePrice;
-    const discountPercent = hasDiscount
-      ? Math.round(
-          ((parseFloat(product.prix_barre) - basePrice) /
-            parseFloat(product.prix_barre)) *
-            100,
-        )
-      : 0;
-
-    return (
-      <Link
-        to={`/produit/${product.ID_Article}`}
-        className="catalog-product-card"
-      >
-        {hasDiscount && (
-          <span className="discount-badge">-{discountPercent}%</span>
-        )}
-        <div className="catalog-product-image">
-          <img
-            src={imageUrl}
-            alt={product.nom_produit}
-            width={400}
-            height={400}
-            loading={priority ? "eager" : "lazy"}
-            decoding="async"
-            fetchPriority={priority ? "high" : "auto"}
-          />
-        </div>
-        <div className="catalog-product-info">
-          <span className="catalog-product-category">
-            {product.categorie?.toUpperCase() || "PRODUIT"}
-          </span>
-          <h3 className="catalog-product-name">{product.nom_produit}</h3>
-          <div className="catalog-product-footer">
-            <div className="catalog-product-prices">
-              {hasDiscount && (
-                <span className="price-original">
-                  {parseFloat(product.prix_barre).toFixed(2)} €
-                </span>
-              )}
-              <span
-                className={`price-current ${hasDiscount ? "price-discounted" : ""}`}
-              >
-                {displayPrice.toFixed(2)} €
-              </span>
-            </div>
-
-            {/* Select grammage uniquement pour café/thé */}
-            {isWeighed && (
-              <select
-                className="card-grammage-select"
-                value={selectedGrammage.label}
-                onClick={(e) => e.preventDefault()}
-                onChange={(e) => {
-                  e.preventDefault();
-                  const found = GRAMMAGES.find(
-                    (g) => g.label === e.target.value,
-                  );
-                  setSelectedGrammage(found);
-                }}
-              >
-                {GRAMMAGES.map((g) => (
-                  <option key={g.label} value={g.label}>
-                    {g.label} — {(basePrice * g.coeff).toFixed(2)} €
-                  </option>
-                ))}
-              </select>
-            )}
-
-            <button
-              className="add-to-cart-btn"
-              onClick={(e) => {
-                e.preventDefault();
-                addToCart({
-                  id: product.ID_Article,
-                  nom: product.nom_produit,
-                  prixUnitaire: displayPrice,
-                  categorie: product.categorie,
-                  images: product.images,
-                  ...(isWeighed && { grammage: selectedGrammage.label }),
-                });
-              }}
-            >
-              Ajouter
-            </button>
-          </div>
-        </div>
-      </Link>
-    );
-  };
-
   const Pagination = () => {
     if (totalPages <= 1) return null;
-
     return (
       <div className="pagination-wrapper">
         <div className="pagination-info">
@@ -271,7 +155,6 @@ const ProductList = ({ limit }) => {
           >
             ←
           </button>
-
           {getPageNumbers().map((page, index) =>
             page === "..." ? (
               <span key={`ellipsis-${index}`} className="pagination-ellipsis">
@@ -289,7 +172,6 @@ const ProductList = ({ limit }) => {
               </button>
             ),
           )}
-
           <button
             className={`pagination-btn pagination-btn--next ${currentPage === totalPages ? "disabled" : ""}`}
             onClick={() =>
@@ -331,15 +213,10 @@ const ProductList = ({ limit }) => {
       );
     }
     if (error) return <div className="no-products">Erreur de chargement</div>;
-
     return (
       <div className="products-grid-home">
-        {filteredProducts.map((product, index) => (
-          <ProductCard
-            key={product.ID_Article}
-            product={product}
-            priority={index === 0}
-          />
+        {filteredProducts.map((product) => (
+          <ProductCard key={product.ID_Article} produit={product} />
         ))}
       </div>
     );
@@ -422,6 +299,7 @@ const ProductList = ({ limit }) => {
                   { value: "thes", label: "Thés" },
                   { value: "cafes", label: "Cafés" },
                   { value: "accessoires", label: "Accessoires" },
+                  { value: "promos", label: "Promotions" },
                 ].map(({ value, label }) => (
                   <label className="filter-option" key={value}>
                     <input
@@ -480,12 +358,8 @@ const ProductList = ({ limit }) => {
             ) : (
               <>
                 <div className="products-grid">
-                  {paginatedProducts.map((product, index) => (
-                    <ProductCard
-                      key={product.ID_Article}
-                      product={product}
-                      priority={index === 0}
-                    />
+                  {paginatedProducts.map((product) => (
+                    <ProductCard key={product.ID_Article} produit={product} />
                   ))}
                 </div>
                 <Pagination />
