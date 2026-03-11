@@ -129,9 +129,7 @@ const Navbar = () => {
 
           {/* Liens desktop */}
           <div className="nav-group-links">
-            <NavLink to="/" aria-label="Accueil">
-              Accueil
-            </NavLink>
+            <NavLink to="/">Accueil</NavLink>
             <span className="separator">|</span>
 
             <div

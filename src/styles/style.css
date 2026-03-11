@@ -3190,7 +3190,7 @@ html, body {
     color: #A89880;
     font-style: italic;
     margin-bottom: 15px;
-    margin-top: -10px;
+    margin-top: 5px;
 }
 
 .btn-add-to-cart {
@@ -3203,7 +3203,7 @@ html, body {
     font-family: 'Outfit', sans-serif;
     font-size: 1rem;
     font-weight: 500;
-    transition: background-color 0.3s;
+    transition: all ease 0.3s;
 }
 
 .btn-add-to-cart:hover {
@@ -3227,7 +3227,7 @@ html, body {
     display: inline-block;
     margin-top: 16px;
     font-size: 0.85rem;
-    color: #A89880;
+    color: #9f9f9f;
     text-decoration: none;
     transition: color 0.2s;
 }
@@ -3463,7 +3463,6 @@ html, body {
     font-size: 2.5rem;
     font-weight: 400;
     color: #000000;
-    margin: 0 0 15px;
 }
 
 .histoire-container p {
