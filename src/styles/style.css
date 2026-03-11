@@ -685,6 +685,7 @@ html, body {
 }
 
 .btn-outline:hover {
+    transition: all ease 0.3s;
     background: #D9C09B;
     border-color: #D9C09B;
     color: white;
@@ -828,6 +829,7 @@ html, body {
 }
 
 .home-cta .btn-outline:hover {
+    transition: all ease 0.3s;
     background-color: #D9C09B !important;
     border-color: #D9C09B !important;
     color: #000000 !important;
@@ -1158,7 +1160,13 @@ html, body {
 .forgot-password {
     font-size: 15px;
     color: #1a1a1a;
+
+}
+
+.forgot-password:hover {
     text-decoration: underline;
+    transition: all ease 0.3s;
+    color: #C9A876;
 }
 
 .terms-group {
@@ -1198,6 +1206,7 @@ html, body {
 .submit-button:hover,
 .auth-submit:hover {
     background-color: #D9C09B;
+    transition: all ease 0.3s;
 }
 
 .register-link {
@@ -1209,8 +1218,12 @@ html, body {
 
 .register-link a {
     color: inherit;
+}
+
+.register-link :hover {
     text-decoration: underline;
-    font-weight: 600;
+    transition: all ease 0.3s;
+    color: #C9A876;
 }
 
 /* ========================================
@@ -2229,6 +2242,7 @@ html, body {
 }
 
 .btn-outline-sm:hover {
+    transition: all ease 0.3s;
     background-color: #D9C09B !important;
     border-color: #D9C09B !important;
     color: var(--ec-white) !important;
@@ -3227,7 +3241,7 @@ html, body {
     display: inline-block;
     margin-top: 16px;
     font-size: 0.85rem;
-    color: #9f9f9f;
+    color: #000000;
     text-decoration: none;
     transition: color 0.2s;
 }
@@ -4026,6 +4040,10 @@ html, body {
    CONTACT & FAQ
 ======================================== */
 
+.contact-submit {
+    transition: all 0.3s ease;
+}
+
 .contact-wrapper,
 .faq-wrapper {
     background-color: #F5F1EB;
@@ -4272,6 +4290,7 @@ html, body {
 }
 
 .contact-submit:hover {
+    transition: all ease 0.3s;
     background-color: #D9C09B;
     border-color: #D9C09B;
     color: #FFFFFF;

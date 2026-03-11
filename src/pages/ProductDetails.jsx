@@ -381,7 +381,23 @@ const ProductDetails = () => {
                     </div>
                     <div className="catalog-product-info">
                       <span className="catalog-product-category">
-                        {item.categorie?.toUpperCase() || "PRODUIT"}
+                        {(function () {
+                          if (
+                            item.categorie === "cafes" ||
+                            item.categorie === "cafe"
+                          ) {
+                            return "CAFÉS";
+                          } else if (
+                            item.categorie === "thes" ||
+                            item.categorie === "the"
+                          ) {
+                            return "THÉS";
+                          } else if (item.categorie) {
+                            return item.categorie.toUpperCase();
+                          } else {
+                            return "PRODUIT";
+                          }
+                        })()}
                       </span>
                       <h3 className="catalog-product-name">
                         {item.nom_produit}

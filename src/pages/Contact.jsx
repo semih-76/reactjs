@@ -168,6 +168,18 @@ const Contact = () => {
                     />
                   </div>
 
+                  <div className="terms-group">
+                    <label htmlFor="acceptTerms" className="checkbox-label">
+                      <input type="checkbox" id="acceptTerms" required />
+                      <span>
+                        J'accepte les{" "}
+                        <Link to="/mentions-legales">
+                          conditions générales d'utilisation
+                        </Link>
+                      </span>
+                    </label>
+                  </div>
+
                   <button type="submit" className="contact-submit">
                     Envoyer le message →
                   </button>
@@ -187,6 +199,7 @@ const Contact = () => {
                 produits, livraisons et retours.
               </p>
             </div>
+
             <Link to="/faq" className="btn-outline">
               Voir la FAQ →
             </Link>
