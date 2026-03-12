@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import { useCart } from "../context/CartContext";
 
+// Options de grammage disponibles avec leur multiplicateur de prix
 const WEIGHTS = [
   { label: "100g", multiplier: 1 },
   { label: "250g", multiplier: 2.5 },
@@ -10,6 +11,7 @@ const WEIGHTS = [
   { label: "1kg", multiplier: 10 },
 ];
 
+// Correspondance categorie vers URL pour le breadcrumb
 const CATEGORY_URL = {
   cafes: "cafes",
   thes: "thes",
@@ -20,6 +22,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
 
+  // Etats du composant
   const [produit, setProduit] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,12 +31,14 @@ const ProductDetails = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedWeight, setSelectedWeight] = useState(WEIGHTS[0]);
 
+  // Recuperation du produit et des produits similaires au chargement
   useEffect(() => {
     const fetchProduit = async () => {
       try {
         setIsLoading(true);
         setError(null);
 
+        // Recuperer le produit par son id
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/api/articles/${id}`,
         );
@@ -42,17 +47,16 @@ const ProductDetails = () => {
         const data = await response.json();
         const produitRecu = data.article;
 
-        console.log("Produit reçu:", produitRecu);
-        console.log("Promo active:", produitRecu.promo_active);
-
         setProduit(produitRecu);
 
+        // Recuperer tous les articles pour les produits similaires
         const allRes = await fetch(
           `${import.meta.env.VITE_API_URL}/api/articles`,
         );
         const allData = await allRes.json();
         const all = allData.articles || allData || [];
 
+        // Filtrer les produits de la meme categorie (max 3)
         const related = all
           .filter(
             (p) =>
@@ -68,26 +72,33 @@ const ProductDetails = () => {
         setIsLoading(false);
       }
     };
+    // Remonter en haut de page a chaque changement de produit
     window.scrollTo(0, 0);
     void fetchProduit();
   }, [id]);
 
+  // Gestion de la quantite
   const incrementQuantity = () => setQuantity((q) => q + 1);
   const decrementQuantity = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
+  // Calcul du prix en fonction du grammage selectionne
+  // Si le produit est en promo, on utilise le prix promo comme base
   const priceForWeight = () => {
     if (!produit) return 0;
-    const basePrice = produit.promo_active
-      ? parseFloat(produit.prix_promo || produit.prix_ttc)
-      : parseFloat(produit.prix_ttc);
+    const basePrice =
+      produit.promo_active == 1
+        ? parseFloat(produit.prix_promo || produit.prix_ttc)
+        : parseFloat(produit.prix_ttc);
 
     return basePrice * selectedWeight.multiplier;
   };
 
+  // Calcul du total (prix x quantite)
   const calculateTotal = () => {
     return (priceForWeight() * quantity).toFixed(2);
   };
 
+  // Ajout au panier avec le grammage et la quantite choisis
   const handleAddToCart = () => {
     addToCart({
       id: produit.ID_Article,
@@ -101,6 +112,7 @@ const ProductDetails = () => {
     setTimeout(() => setAdded(false), 2000);
   };
 
+  // Avis clients statiques (a remplacer par des donnees dynamiques plus tard)
   const reviews = [
     {
       id: 1,
@@ -108,24 +120,25 @@ const ProductDetails = () => {
       rating: 5,
       date: "15 janvier 2026",
       comment:
-        "Excellent produit, arômes complexes et délicats. Je recommande vivement !",
+        "Excellent produit, aromes complexes et delicats. Je recommande vivement !",
     },
     {
       id: 2,
       author: "Pierre L.",
       rating: 5,
       date: "8 janvier 2026",
-      comment: "Un des meilleurs que j'ai goûtés. Livraison rapide et soignée.",
+      comment: "Un des meilleurs que j'ai goutes. Livraison rapide et soignee.",
     },
     {
       id: 3,
       author: "Sophie M.",
       rating: 4,
       date: "2 janvier 2026",
-      comment: "Très bon avec des notes subtiles et raffinées.",
+      comment: "Tres bon avec des notes subtiles et raffinees.",
     },
   ];
 
+  // Affichage du skeleton pendant le chargement
   if (isLoading) {
     return (
       <div className="product-details-wrapper">
@@ -148,6 +161,7 @@ const ProductDetails = () => {
     );
   }
 
+  // Affichage en cas d'erreur
   if (error || !produit) {
     return (
       <div className="product-details-wrapper">
@@ -166,22 +180,26 @@ const ProductDetails = () => {
     );
   }
 
+  // Construction de l'URL de l'image du produit
   const imageUrl = produit.images
     ? `${import.meta.env.VITE_API_URL}/images/${produit.images}`
     : `https://placehold.co/600x600?text=${produit.nom_produit}`;
 
+  // Les accessoires ne sont pas vendus au poids
   const showWeightSelector = produit.categorie !== "accessoires";
 
+  // Label de la categorie pour le breadcrumb et l'affichage
   const categoryLabel =
     {
-      cafes: "Cafés",
-      thes: "Thés",
+      cafes: "Cafes",
+      thes: "Thes",
       accessoires: "Accessoires",
     }[produit.categorie] || produit.categorie;
 
   return (
     <main className="product-details-wrapper">
       <div className="product-details-container">
+        {/* Fil d'ariane */}
         <nav className="breadcrumb">
           <Link to="/">Accueil</Link>
           <span>/</span>
@@ -197,8 +215,9 @@ const ProductDetails = () => {
         </nav>
 
         <section className="product-main">
+          {/* Galerie image avec badge promo si applicable */}
           <div className="product-gallery">
-            {produit.promo_active && produit.pourcentage_reduction && (
+            {produit.promo_active == 1 && produit.pourcentage_reduction && (
               <div className="pd-discount-badge">
                 -{produit.pourcentage_reduction}%
               </div>
@@ -214,6 +233,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
+          {/* Informations du produit */}
           <div className="product-info-section">
             <span className="product-category-label">
               {categoryLabel.toUpperCase()}
@@ -230,6 +250,7 @@ const ProductDetails = () => {
               <p className="product-description">{produit.description}</p>
             )}
 
+            {/* Details du produit (origine, stock) */}
             <div className="product-details-info">
               {produit.origine && (
                 <div className="info-row">
@@ -238,7 +259,7 @@ const ProductDetails = () => {
                 </div>
               )}
               <div className="info-row">
-                <span className="info-label">Disponibilité :</span>
+                <span className="info-label">Disponibilite :</span>
                 <span
                   className={`info-value ${produit.stock > 0 ? "availability-stock" : "availability-out"}`}
                 >
@@ -247,6 +268,7 @@ const ProductDetails = () => {
               </div>
             </div>
 
+            {/* Selecteur de grammage (uniquement pour thes et cafes) */}
             {showWeightSelector && (
               <div className="weight-selector">
                 <label>
@@ -276,8 +298,9 @@ const ProductDetails = () => {
               </div>
             )}
 
+            {/* Selecteur de quantite */}
             <div className="quantity-selector-section">
-              <label htmlFor="quantity-input">Nombre d'unités</label>
+              <label htmlFor="quantity-input">Nombre d'unites</label>
               <div className="quantity-controls">
                 <button onClick={decrementQuantity}>−</button>
                 <input type="number" value={quantity} readOnly />
@@ -285,9 +308,11 @@ const ProductDetails = () => {
               </div>
             </div>
 
+            {/* Section prix avec gestion des promos */}
             <div className="product-price-section">
               <div className="pd-prices">
-                {produit.promo_active && (
+                {/* Prix barre si promo active */}
+                {produit.promo_active == 1 && (
                   <span className="pd-price-original">
                     {(
                       parseFloat(produit.prix_ttc) *
@@ -297,14 +322,16 @@ const ProductDetails = () => {
                     €
                   </span>
                 )}
+                {/* Prix actuel (rouge si promo, normal sinon) */}
                 <span
-                  className={`price-value ${produit.promo_active ? "pd-price-discounted" : ""}`}
+                  className={`price-value ${produit.promo_active == 1 ? "pd-price-discounted" : ""}`}
                 >
                   {calculateTotal()} €
                 </span>
               </div>
 
-              {produit.promo_active && produit.date_fin_promo && (
+              {/* Date de fin de promo si applicable */}
+              {produit.promo_active == 1 && produit.date_fin_promo && (
                 <p
                   className="promo-info"
                   style={{
@@ -326,19 +353,21 @@ const ProductDetails = () => {
                 </p>
               )}
 
+              {/* Prix unitaire affiche si quantite superieure a 1 */}
               {quantity > 1 && (
                 <p className="pd-unit-price">
-                  {priceForWeight().toFixed(2)} € / unité
+                  {priceForWeight().toFixed(2)} € / unite
                 </p>
               )}
 
+              {/* Bouton ajout au panier */}
               <button
                 className={`btn-add-to-cart ${added ? "btn-added" : ""}`}
                 onClick={handleAddToCart}
                 disabled={produit.stock === 0}
               >
                 {added
-                  ? "Ajouté au panier"
+                  ? "Ajoute au panier"
                   : produit.stock === 0
                     ? "Rupture de stock"
                     : "Ajouter au panier"}
@@ -351,18 +380,21 @@ const ProductDetails = () => {
           </div>
         </section>
 
+        {/* Produits similaires de la meme categorie */}
         {relatedProducts.length > 0 && (
           <section className="related-products">
-            <h2>Dans la même collection</h2>
+            <h2>Dans la meme collection</h2>
             <div className="products-grid">
               {relatedProducts.map((item) => {
                 const relatedImage = item.images
                   ? `${import.meta.env.VITE_API_URL}/images/${item.images}`
                   : "https://placehold.co/400x400?text=Produit";
 
-                const prixAffiche = item.promo_active
-                  ? parseFloat(item.prix_promo || item.prix_ttc)
-                  : parseFloat(item.prix_ttc);
+                // Prix affiche selon si le produit similaire est en promo ou non
+                const prixAffiche =
+                  item.promo_active == 1
+                    ? parseFloat(item.prix_promo || item.prix_ttc)
+                    : parseFloat(item.prix_ttc);
 
                 return (
                   <Link
@@ -370,7 +402,8 @@ const ProductDetails = () => {
                     to={`/produit/${item.ID_Article}`}
                     className="catalog-product-card"
                   >
-                    {item.promo_active && item.pourcentage_reduction && (
+                    {/* Badge promo sur les produits similaires */}
+                    {item.promo_active == 1 && item.pourcentage_reduction && (
                       <div className="discount-badge">
                         -{item.pourcentage_reduction}%
                       </div>
@@ -404,13 +437,15 @@ const ProductDetails = () => {
                       </h3>
                       <div className="catalog-product-footer">
                         <div className="catalog-product-prices">
-                          {item.promo_active && (
+                          {/* Prix barre si promo sur produit similaire */}
+                          {item.promo_active == 1 && (
                             <span className="price-original">
                               {parseFloat(item.prix_ttc).toFixed(2)} €
                             </span>
                           )}
+                          {/* Prix actuel du produit similaire */}
                           <span
-                            className={`price-current ${item.promo_active ? "price-discounted" : ""}`}
+                            className={`price-current ${item.promo_active == 1 ? "price-discounted" : ""}`}
                           >
                             {prixAffiche.toFixed(2)} €
                           </span>
@@ -439,6 +474,7 @@ const ProductDetails = () => {
           </section>
         )}
 
+        {/* Section avis clients */}
         <section className="customer-reviews">
           <h2>Avis clients</h2>
           <div className="reviews-list">

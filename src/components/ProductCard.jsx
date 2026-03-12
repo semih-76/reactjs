@@ -28,9 +28,10 @@ const ProductCard = ({ produit }) => {
 
   const [selectedGrammage, setSelectedGrammage] = useState(GRAMMAGES[0]);
 
-  const basePrice = produit.promo_active
-    ? parseFloat(produit.prix_promo || produit.prix_ttc)
-    : parseFloat(produit.prix_ttc);
+  const basePrice =
+    produit.promo_active == 1
+      ? parseFloat(produit.prix_promo || produit.prix_ttc)
+      : parseFloat(produit.prix_ttc);
 
   const prixNormal = parseFloat(produit.prix_ttc);
   const displayPrice = isWeighed
@@ -47,7 +48,7 @@ const ProductCard = ({ produit }) => {
       style={{ textDecoration: "none", color: "inherit", display: "block" }}
     >
       <div className="catalog-product-card">
-        {produit.promo_active && produit.pourcentage_reduction && (
+        {produit.promo_active == 1 && produit.pourcentage_reduction && (
           <div className="discount-badge">
             -{produit.pourcentage_reduction}%
           </div>
@@ -63,7 +64,11 @@ const ProductCard = ({ produit }) => {
 
         <div className="catalog-product-info">
           <span className="catalog-product-category">
-            {produit.categorie?.toUpperCase() || "PRODUIT"}
+            {produit.categorie === "cafes" || produit.categorie === "cafe"
+              ? "CAFÉS"
+              : produit.categorie === "thes" || produit.categorie === "the"
+                ? "THÉS"
+                : produit.categorie?.toUpperCase() || "PRODUIT"}
           </span>
 
           <h3 className="catalog-product-name">{produit.nom_produit}</h3>
@@ -90,13 +95,13 @@ const ProductCard = ({ produit }) => {
             )}
 
             <div className="catalog-product-prices">
-              {produit.promo_active && (
+              {produit.promo_active == 1 && (
                 <span className="price-original">
                   {displayPrixNormal.toFixed(2)} €
                 </span>
               )}
               <span
-                className={`price-current ${produit.promo_active ? "price-discounted" : ""}`}
+                className={`price-current ${produit.promo_active == 1 ? "price-discounted" : ""}`}
               >
                 {displayPrice.toFixed(2)} €
               </span>

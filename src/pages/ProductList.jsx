@@ -76,7 +76,7 @@ const ProductList = ({ limit }) => {
     if (selectedCategory === "promos") {
       let avecPromo = [];
       for (let i = 0; i < filtered.length; i++) {
-        if (filtered[i].promo_active === true) {
+        if (filtered[i].promo_active == 1) {
           avecPromo.push(filtered[i]);
         }
       }
