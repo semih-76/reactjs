@@ -20,14 +20,14 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("monPanier", JSON.stringify(items));
   }, [items]);
 
-  // Total calculé automatiquement depuis les items
+  //  Total calculé automatiquement depuis les items
   const total = items.reduce((sum, item) => {
     return (
       sum + parseFloat(item.prixUnitaire || item.prix || 0) * item.quantite
     );
   }, 0);
 
-  // Nombre total d'articles dans le panier
+  //  Nombre total d'articles dans le panier
   const totalItems = items.reduce((sum, item) => sum + item.quantite, 0);
 
   const showToast = useCallback((product) => {
@@ -68,14 +68,19 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  const clearCart = () => {
+    setItems([]);
+  };
+
   return (
-    // On expose total et totalItems
+    //  On expose total et totalItems
     <CartContext.Provider
       value={{
         items,
         addToCart,
         removeItem,
         updateQuantity,
+        clearCart,
         total,
         totalItems,
       }}

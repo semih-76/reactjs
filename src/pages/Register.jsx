@@ -236,7 +236,7 @@ const Register = () => {
               />
               <span>
                 J'accepte les{" "}
-                <Link to="/mentions-legales">
+                <Link to="/mentions-legales#donnees">
                   conditions générales d'utilisation
                 </Link>
               </span>

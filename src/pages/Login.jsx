@@ -35,7 +35,12 @@ const Login = () => {
         return;
       }
 
-      login(data.client);
+      console.log("Réponse login:", data);
+      console.log("Token reçu:", data.token);
+      console.log("Client reçu:", data.client);
+
+      // On passe aussi le token pour le stocker dans le localStorage
+      login(data.client, data.token);
       navigate("/");
     } catch (error) {
       console.error("Erreur lors de la connexion: ", error);
@@ -47,7 +52,7 @@ const Login = () => {
     <main className="auth-wrapper">
       <div className="login-split-layout">
         <div className="img-login">
-          <img src="/images/img-login.webp" alt="Image Page de connexion"></img>
+          <img src="/images/img-login.webp" alt="Image Page de connexion" />
         </div>
         <div className="auth-container">
           <h1 className="auth-title">Déjà client ?</h1>

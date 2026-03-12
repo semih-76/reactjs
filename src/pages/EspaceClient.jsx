@@ -387,45 +387,49 @@ const MesInformations = () => {
 // COMPOSANT PRINCIPAL
 
 const EspaceClient = () => {
-    const [activeTab, setActiveTab] = useState('mon-compte');
+    const [activeTab, setActiveTab] = useState("mon-compte");
     const [commandes, setCommandes] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchCommandes = async () => {
-            try {
-                setLoading(true);
+      const fetchCommandes = async () => {
+        try {
+          setLoading(true);
 
-                const token = localStorage.getItem('token');
-                const response = await fetch('/api/commandes', {
-                    headers: {
-                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-                        'Content-Type': 'application/json',
-                    },
-                });
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/api/commandes`,
+            {
+              headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                "Content-Type": "application/json",
+              },
+            },
+          );
 
-                // Si l'API n'existe pas encore ou renvoie une erreur, on ne plante pas
-                if (!response.ok) {
-                    console.warn(`API commandes : ${response.status} ${response.statusText}`);
-                    setCommandes([]);
-                    return;
-                }
+          // Si l'API n'existe pas encore ou renvoie une erreur, on ne plante pas
+          if (!response.ok) {
+            console.warn(
+              `API commandes : ${response.status} ${response.statusText}`,
+            );
+            setCommandes([]);
+            return;
+          }
 
-                const data = await response.json();
+          const data = await response.json();
 
-                // Garde-fou : on s'assure que c'est bien un tableau avant de stocker
-                setCommandes(Array.isArray(data) ? data : []);
+          // Garde-fou : on s'assure que c'est bien un tableau avant de stocker
+          setCommandes(Array.isArray(data) ? data : []);
+        } catch (error) {
+          console.error("Erreur lors du chargement des commandes :", error);
+          setCommandes([]);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-            } catch (error) {
-                console.error('Erreur lors du chargement des commandes :', error);
-                setCommandes([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCommandes();
+      fetchCommandes();
     }, []);
 
     // Stats calculées — sécurisées grâce au Array.isArray dans le fetch

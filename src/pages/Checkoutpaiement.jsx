@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "./CheckoutContext";
 import { useCart } from "../context/CartContext";
+import { AuthContext } from "../context/AuthContext";
 
-// Barre de progression
 const CheckoutSteps = ({ current }) => {
   const steps = ["Identification", "Livraison", "Paiement", "Confirmation"];
   return (
@@ -22,7 +22,6 @@ const CheckoutSteps = ({ current }) => {
   );
 };
 
-// Formatage numéro de carte
 const formatCardNumber = (val) =>
   val
     .replace(/\D/g, "")
@@ -35,11 +34,16 @@ const formatExpiry = (val) => {
   return clean.length > 2 ? `${clean.slice(0, 2)}/${clean.slice(2)}` : clean;
 };
 
-// Composant principal
 const CheckoutPaiement = () => {
   const navigate = useNavigate();
   const { checkoutData, updateCheckout } = useCheckout();
-  const { items, total } = useCart(); // récupère les articles et le total du panier
+  const { items, total } = useCart();
+  const { user } = useContext(AuthContext);
+
+  const token = localStorage.getItem("token");
+  const stored = localStorage.getItem("id_client");
+  const id_client =
+    user?.id || (stored && stored !== "undefined" ? Number(stored) : null);
 
   const isMagasin = checkoutData.deliveryMode === "magasin";
 
@@ -55,7 +59,6 @@ const CheckoutPaiement = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // Validation carte
   const validateCard = () => {
     const e = {};
     const rawNumber = cardData.number.replace(/\s/g, "");
@@ -64,21 +67,60 @@ const CheckoutPaiement = () => {
     if (!cardData.name.trim()) e.name = "Nom du porteur requis.";
     if (!/^\d{2}\/\d{2}$/.test(cardData.expiry))
       e.expiry = "Date invalide (MM/AA).";
-    if (!/^\d{3,4}$/.test(cardData.cvv)) e.cvv = "CVV invalide.";
+    if (!/^\d{3}$/.test(cardData.cvv)) e.cvv = "CVV invalide (3 chiffres).";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  // Soumission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    console.log("user:", user);
+    console.log("user.id:", user?.id);
+    console.log("user.ID_Client:", user?.ID_Client);
+    console.log("stored:", localStorage.getItem("id_client"));
+    console.log("token:", localStorage.getItem("token"));
     if (paymentMethod === "card" && !validateCard()) return;
+
+    if (!id_client) {
+      setErrors({
+        global: "Vous devez être connecté pour passer une commande.",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
-      const fakeOrderId =
-        "CMD-" + Math.random().toString(36).slice(2, 9).toUpperCase();
+      const articles = items.map((item) => ({
+        id_article: item.id,
+        quantite: item.quantite,
+        prix_unitaire: parseFloat(item.prix_ttc || item.prix || 0),
+      }));
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/commandes`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            id_client,
+            articles,
+            total_ttc: total,
+            mode_commande: isMagasin ? "magasin" : "en_ligne",
+            mode_paiement: paymentMethod === "card" ? "cb" : paymentMethod,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Erreur lors de la commande");
+      }
+
       const fakeDate = new Date().toLocaleDateString("fr-FR", {
         day: "2-digit",
         month: "long",
@@ -87,14 +129,16 @@ const CheckoutPaiement = () => {
 
       updateCheckout({
         paymentMethod,
-        orderId: fakeOrderId,
+        orderId: "CMD-" + data.orderId,
         orderDate: fakeDate,
-        total, // ✅ on sauvegarde aussi le total dans le contexte checkout
+        total,
       });
 
       navigate("/checkout/confirmation");
-    } catch {
-      setErrors({ global: "Une erreur est survenue. Veuillez réessayer." });
+    } catch (err) {
+      setErrors({
+        global: err.message || "Une erreur est survenue. Veuillez réessayer.",
+      });
     } finally {
       setLoading(false);
     }
@@ -105,12 +149,9 @@ const CheckoutPaiement = () => {
       <CheckoutSteps current={3} />
 
       <form className="checkout-layout" onSubmit={handleSubmit}>
-        {/* ── Colonne gauche ── */}
         <div className="checkout-main">
-          {/* Méthodes de paiement */}
           <section className="checkout-section">
             <h2 className="checkout-section-title">Méthode de paiement</h2>
-
             <div className="payment-methods">
               {!isMagasin && (
                 <label
@@ -166,7 +207,6 @@ const CheckoutPaiement = () => {
             </div>
           </section>
 
-          {/* Formulaire carte */}
           {paymentMethod === "card" && (
             <section className="checkout-section">
               <h2 className="checkout-section-title">
@@ -243,11 +283,11 @@ const CheckoutPaiement = () => {
                     onChange={(e) =>
                       setCardData({
                         ...cardData,
-                        cvv: e.target.value.replace(/\D/g, "").slice(0, 4),
+                        cvv: e.target.value.replace(/\D/g, "").slice(0, 3),
                       })
                     }
                     placeholder="•••"
-                    maxLength={4}
+                    maxLength={3}
                   />
                   {errors.cvv && (
                     <span className="field-error">{errors.cvv}</span>
@@ -257,7 +297,6 @@ const CheckoutPaiement = () => {
             </section>
           )}
 
-          {/* Message PayPal */}
           {paymentMethod === "paypal" && (
             <section className="checkout-section">
               <div className="paypal-info">
@@ -270,10 +309,10 @@ const CheckoutPaiement = () => {
             </section>
           )}
 
-          {/* Message paiement en magasin */}
           {paymentMethod === "magasin" && (
             <section className="checkout-section">
               <div className="store-pickup-info">
+                <span className="store-pickup-icon">💶</span>
                 <div>
                   <strong>Paiement à la boutique</strong>
                   <p>Vous réglez au moment du retrait de votre commande.</p>
@@ -286,12 +325,10 @@ const CheckoutPaiement = () => {
           {errors.global && <div className="msg-error">{errors.global}</div>}
         </div>
 
-        {/* ── Sidebar récap ── */}
         <aside className="checkout-sidebar">
           <div className="checkout-summary-card">
             <h3>Récapitulatif</h3>
 
-            {/* Liste des articles du panier */}
             {items.map((item) => (
               <div className="summary-line" key={item.id}>
                 <span>

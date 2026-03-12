@@ -170,10 +170,17 @@ const Contact = () => {
 
                   <div className="terms-group">
                     <label htmlFor="acceptTerms" className="checkbox-label">
-                      <input type="checkbox" id="acceptTerms" required />
+                      <input
+                        type="checkbox"
+                        id="acceptTerms"
+                        name="acceptTerms"
+                        checked={form.acceptTerms}
+                        onChange={handleChange}
+                        required
+                      />
                       <span>
                         J'accepte les{" "}
-                        <Link to="/mentions-legales">
+                        <Link to="/mentions-legales#donnees">
                           conditions générales d'utilisation
                         </Link>
                       </span>
@@ -199,7 +206,6 @@ const Contact = () => {
                 produits, livraisons et retours.
               </p>
             </div>
-
             <Link to="/faq" className="btn-outline">
               Voir la FAQ →
             </Link>

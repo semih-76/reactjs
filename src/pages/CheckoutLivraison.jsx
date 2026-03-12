@@ -2,9 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "./CheckoutContext.jsx";
 import { useCart } from "../context/CartContext";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/authContext.jsx";
 
-// Données mock transporteurs
 const CARRIERS = [
   {
     id: "colissimo",
@@ -21,7 +20,6 @@ const CARRIERS = [
   },
 ];
 
-// Barre de progression
 const CheckoutSteps = ({ current }) => {
   const steps = ["Identification", "Livraison", "Paiement", "Confirmation"];
   return (
@@ -40,18 +38,15 @@ const CheckoutSteps = ({ current }) => {
   );
 };
 
-// Composant principal
 const CheckoutLivraison = () => {
-  const { user, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   const { checkoutData, updateCheckout } = useCheckout();
+  const { user } = useContext(AuthContext); // ← récupère le user connecté
 
-  // Adresses du client fetchées depuis l'API
   const [addresses, setAddresses] = useState([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
 
-  // États locaux du formulaire
   const [deliveryMode, setDeliveryMode] = useState(
     checkoutData.deliveryMode || "domicile",
   );
@@ -59,6 +54,8 @@ const CheckoutLivraison = () => {
     checkoutData.selectedAddressId || null,
   );
   const [carrier, setCarrier] = useState(checkoutData.carrier || null);
+
+  // ← pré-remplissage avec les infos du user connecté
   const [newAddress, setNewAddress] = useState(
     checkoutData.newAddress || {
       firstName: user?.prenom || "",
@@ -69,30 +66,23 @@ const CheckoutLivraison = () => {
       country: "France",
     },
   );
-  const [errors, setErrors] = useState({});
 
+  const [errors, setErrors] = useState({});
   const { items } = useCart();
 
-  // Fetch des adresses
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        // TODO : remplacer par l'URL réelle de ton API
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/clients/addresses`,
-          {
-            credentials: "include",
-          },
-        );
+        const res = await fetch("/api/client/addresses", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
         if (!res.ok) throw new Error();
         const data = await res.json();
         setAddresses(data);
-        // Présélectionner l'adresse par défaut si elle existe
         const def = data.find((a) => a.isDefault);
         if (def && !checkoutData.selectedAddressId)
           setSelectedAddressId(def.id);
       } catch {
-        // En cas d'erreur API on affiche directement le formulaire
         setShowNewAddressForm(true);
       } finally {
         setLoadingAddresses(false);
@@ -101,18 +91,6 @@ const CheckoutLivraison = () => {
     fetchAddresses();
   }, []);
 
-  // Pré-remplir avec les infos du compte connecté
-  useEffect(() => {
-    if (user) {
-      setNewAddress((prev) => ({
-        ...prev,
-        firstName: user.prenom || user.firstName || "",
-        lastName: user.nom || user.lastName || "",
-      }));
-    }
-  }, [user]);
-
-  // Validation
   const validate = () => {
     const e = {};
     if (deliveryMode === "domicile") {
@@ -132,7 +110,6 @@ const CheckoutLivraison = () => {
     return Object.keys(e).length === 0;
   };
 
-  // Soumission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -161,9 +138,7 @@ const CheckoutLivraison = () => {
       <CheckoutSteps current={2} />
 
       <form className="checkout-layout" onSubmit={handleSubmit}>
-        {/* ── Colonne gauche ── */}
         <div className="checkout-main">
-          {/* Mode de livraison */}
           <section className="checkout-section">
             <h2 className="checkout-section-title">Mode de livraison</h2>
             <div className="delivery-mode-grid">
@@ -200,7 +175,6 @@ const CheckoutLivraison = () => {
             </div>
           </section>
 
-          {/* Adresse de livraison (uniquement si domicile) */}
           {deliveryMode === "domicile" && (
             <section className="checkout-section">
               <h2 className="checkout-section-title">Adresse de livraison</h2>
@@ -209,7 +183,6 @@ const CheckoutLivraison = () => {
                 <p className="checkout-loading">Chargement de vos adresses…</p>
               ) : (
                 <>
-                  {/* Adresses existantes */}
                   {addresses.length > 0 && !showNewAddressForm && (
                     <div className="address-radio-list">
                       {addresses.map((addr) => (
@@ -251,7 +224,6 @@ const CheckoutLivraison = () => {
                     </div>
                   )}
 
-                  {/* Formulaire nouvelle adresse */}
                   {(showNewAddressForm || addresses.length === 0) && (
                     <div className="new-address-form">
                       {addresses.length > 0 && (
@@ -367,7 +339,6 @@ const CheckoutLivraison = () => {
             </section>
           )}
 
-          {/* Transporteur (uniquement si domicile) */}
           {deliveryMode === "domicile" && (
             <section className="checkout-section">
               <h2 className="checkout-section-title">Transporteur</h2>
@@ -422,16 +393,12 @@ const CheckoutLivraison = () => {
           <div className="checkout-summary-card">
             <h3>Récapitulatif</h3>
 
-            {/* ... liste des produits ... */}
-
             <div className="summary-line">
               <span>Sous-total</span>
               <span>{subtotal.toFixed(2)} €</span>
             </div>
-
             <div className="summary-line">
               <span>Livraison</span>
-              {/* Ici l'affichage dynamique de la ligne livraison */}
               <span>
                 {deliveryMode === "magasin"
                   ? "Gratuit"
@@ -440,10 +407,8 @@ const CheckoutLivraison = () => {
                     : "À choisir"}
               </span>
             </div>
-
             <div className="summary-total">
               <span>Total TTC</span>
-              {/* MISE À JOUR ICI : On utilise la variable total calculée plus haut */}
               <span>{total.toFixed(2)} €</span>
             </div>
 
@@ -456,4 +421,5 @@ const CheckoutLivraison = () => {
     </div>
   );
 };
+
 export default CheckoutLivraison;
