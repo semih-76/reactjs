@@ -61,7 +61,7 @@ const Navbar = () => {
       setIsLoading(true);
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/articles?search=${encodeURIComponent(debouncedQuery.trim())}&limit=5`,
+          `/api/articles?search=${encodeURIComponent(debouncedQuery.trim())}&limit=5`,
         );
         const data = await res.json();
         const results = Array.isArray(data.articles) ? data.articles : [];
